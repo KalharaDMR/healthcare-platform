@@ -1,14 +1,12 @@
 package com.healthcare.admin.client;
-
 import com.healthcare.admin.dto.RoleChangeRequest;
 import com.healthcare.admin.dto.UpdateUserRequest;
 import com.healthcare.admin.dto.UserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
-@FeignClient(name = "auth-service", url = "${services.auth.url}")
+@FeignClient(name = "auth-service")
 public interface AuthServiceClient {
 
     @GetMapping("/internal/users")

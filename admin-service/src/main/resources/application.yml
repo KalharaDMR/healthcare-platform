@@ -6,17 +6,13 @@ spring:
     name: admin-service
   datasource:
     url: jdbc:postgresql://localhost:5432/admin_db
-    username: admin_user
-    password: admin123
+    username: postgres
+    password: 20021021@Rusira
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-
-services:
-  auth:
-    url: http://localhost:8081
 
 internal:
   api:

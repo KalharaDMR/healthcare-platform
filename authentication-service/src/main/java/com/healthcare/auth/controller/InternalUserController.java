@@ -1,13 +1,12 @@
 package com.healthcare.auth.controller;
 
 import com.healthcare.auth.dto.*;
-        import com.healthcare.auth.entity.User;
+import com.healthcare.auth.entity.User;
 import com.healthcare.auth.repository.UserRepository;
 import com.healthcare.auth.service.AuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
         import java.util.List;
 import java.util.stream.Collectors;
 

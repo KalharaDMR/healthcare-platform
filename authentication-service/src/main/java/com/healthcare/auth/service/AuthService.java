@@ -92,12 +92,6 @@ public class AuthService {
         user.getRoles().clear();
         user.getRoles().add(newRole);
 
-        if (newRole.getName().equals("DOCTOR")) {
-            user.setApproved(false);
-        } else {
-            user.setApproved(true);
-        }
-
         return userRepository.save(user);
     }
 
