@@ -21,12 +21,12 @@ spring:
 
 internal:
   api:
-    key: doctor-internal-secret
+    key: your-secret-internal-key
 
 services:
   auth:
     url: http://localhost:8081
-    internal-key: doctor-internal-secret
+    internal-key: your-secret-internal-key
 
 eureka:
   client:
