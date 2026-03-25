@@ -62,14 +62,6 @@ public class InternalUserController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/users/{id}/role")
-    public UserResponse changeUserRole(@PathVariable Long id,
-                                       @RequestBody RoleChangeRequest request,
-                                       @RequestHeader(value = "X-INTERNAL-KEY", required = false) String apiKey) {
-        validateApiKey(apiKey);
-        User updated = authService.changeUserRole(id, request);
-        return toResponse(updated);
-    }
 
     @PutMapping("/users/{id}/approve")
     public ResponseEntity<?> approveDoctor(@PathVariable Long id,
@@ -82,12 +74,16 @@ public class InternalUserController {
     private UserResponse toResponse(User user) {
         UserResponse response = new UserResponse();
         response.setId(user.getId());
+        response.setName(user.getName());
         response.setUsername(user.getUsername());
         response.setEmail(user.getEmail());
         response.setStatus(user.getStatus());
         response.setApproved(user.isApproved());
         response.setCreatedAt(user.getCreatedAt());
         response.setRoles(user.getRoles());
+        if (user.getRoles().contains("DOCTOR")) {
+            response.setSpecialization(user.getSpecialization());
+        }
         return response;
     }
 }

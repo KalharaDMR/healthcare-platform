@@ -6,6 +6,8 @@ import java.util.Set;
 
 public class UserResponse {
     private Long id;
+    private String name;
+    private String specialization;
     private String username;
     private String email;
     private String status;
@@ -15,6 +17,13 @@ public class UserResponse {
 
     public UserResponse() {}
 
+    public void setName(String name){this.name = name;}
+
+    public String getName() {return name;}
+
+    public void setSpecialization(String specialization){this.specialization = specialization;}
+
+    public String getSpecialization(){return specialization;}
     public Long getId() {
         return id;
     }

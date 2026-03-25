@@ -35,6 +35,7 @@ public class AuthService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(request.getName());
 
         String roleName = request.getRole() != null ? request.getRole().toUpperCase() : "PATIENT";
         Role role = roleRepository.findByName(roleName)
@@ -42,6 +43,11 @@ public class AuthService {
 
         user.getRoles().add(role);
         if (roleName.equals("DOCTOR")) {
+            if(request.getSpecialization()==null)
+            {
+                throw new RuntimeException("specialization is missed");
+            }
+            user.setSpecialization(request.getSpecialization());
             user.setApproved(false);
         } else {
             user.setApproved(true);
@@ -81,19 +87,7 @@ public class AuthService {
         userRepository.deleteById(id);
     }
 
-    @Transactional
-    public User changeUserRole(Long id, RoleChangeRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Role newRole = roleRepository.findByName(request.getRoleName().toUpperCase())
-                .orElseThrow(() -> new RuntimeException("Role not found"));
-
-        user.getRoles().clear();
-        user.getRoles().add(newRole);
-
-        return userRepository.save(user);
-    }
 
     @Transactional
     public void approveDoctor(Long id) {

@@ -41,10 +41,6 @@ public class AdminController {
         authServiceClient.deleteUser(id, internalApiKey);
     }
 
-    @PutMapping("/users/{id}/role")
-    public UserResponse changeUserRole(@PathVariable Long id, @RequestBody RoleChangeRequest request) {
-        return authServiceClient.changeUserRole(id, request, internalApiKey);
-    }
 
     @PutMapping("/users/{id}/approve")
     public void approveDoctor(@PathVariable Long id) {

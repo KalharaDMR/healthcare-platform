@@ -25,10 +25,6 @@ public interface AuthServiceClient {
     void deleteUser(@PathVariable("id") Long id,
                     @RequestHeader("X-INTERNAL-KEY") String apiKey);
 
-    @PutMapping("/internal/users/{id}/role")
-    UserResponse changeUserRole(@PathVariable("id") Long id,
-                                @RequestBody RoleChangeRequest request,
-                                @RequestHeader("X-INTERNAL-KEY") String apiKey);
 
     @PutMapping("/internal/users/{id}/approve")
     void approveDoctor(@PathVariable("id") Long id,
