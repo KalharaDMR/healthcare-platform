@@ -28,3 +28,7 @@ spring:
           uri: lb://admin-service
           predicates:
             - Path=/api/admin/**
+        - id: doctor-service
+          uri: lb://doctor-service
+          predicates:
+            - Path=/api/doctors/**
