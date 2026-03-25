@@ -23,7 +23,7 @@ jwt:
 
 internal:
   api:
-    key: your-secret-internal-key
+    key: doctor-internal-secret
 
 eureka:
   client:
