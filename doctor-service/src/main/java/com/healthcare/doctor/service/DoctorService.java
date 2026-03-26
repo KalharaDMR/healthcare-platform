@@ -4,10 +4,12 @@ import com.healthcare.doctor.client.AuthServiceClient;
 import com.healthcare.doctor.dto.*;
 import com.healthcare.doctor.entity.DoctorAvailabilitySlot;
 import com.healthcare.doctor.entity.DoctorProfile;
+import com.healthcare.doctor.entity.DoctorSpecialization;
 import com.healthcare.doctor.entity.DoctorVerificationStatus;
 import com.healthcare.doctor.exception.ResourceNotFoundException;
 import com.healthcare.doctor.repository.DoctorAvailabilitySlotRepository;
 import com.healthcare.doctor.repository.DoctorProfileRepository;
+import com.healthcare.doctor.repository.DoctorSpecializationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ public class DoctorService {
 
     private final DoctorProfileRepository doctorProfileRepository;
     private final DoctorAvailabilitySlotRepository slotRepository;
+    private final DoctorSpecializationRepository specializationRepository;
     private final AuthServiceClient authServiceClient;
 
     @Value("${services.auth.internal-key}")
@@ -40,12 +43,20 @@ public class DoctorService {
             throw new IllegalArgumentException("License number already exists");
         }
 
+        validateSpecialization(request.getPrimarySpecialization());
+
+        if (request.getSecondarySpecialization() != null && !request.getSecondarySpecialization().isBlank()) {
+            validateSpecialization(request.getSecondarySpecialization());
+        }
+
         DoctorProfile doctor = new DoctorProfile();
         doctor.setAuthUserId(request.getAuthUserId());
         doctor.setFullName(request.getFullName());
         doctor.setLicenseNumber(request.getLicenseNumber());
-        doctor.setPrimarySpecialization(request.getPrimarySpecialization());
-        doctor.setSecondarySpecialization(request.getSecondarySpecialization());
+        doctor.setPrimarySpecialization(request.getPrimarySpecialization().trim());
+        doctor.setSecondarySpecialization(
+                request.getSecondarySpecialization() == null ? null : request.getSecondarySpecialization().trim()
+        );
         doctor.setLocation(request.getLocation());
         doctor.setHospitalName(request.getHospitalName());
         doctor.setBio(request.getBio());
@@ -73,40 +84,95 @@ public class DoctorService {
     public DoctorResponse updateDoctor(Long doctorId, DoctorUpdateRequest request) {
         DoctorProfile doctor = getDoctorEntity(doctorId);
 
-        if (request.getFullName() != null) doctor.setFullName(request.getFullName());
-        if (request.getPrimarySpecialization() != null) doctor.setPrimarySpecialization(request.getPrimarySpecialization());
-        if (request.getSecondarySpecialization() != null) doctor.setSecondarySpecialization(request.getSecondarySpecialization());
-        if (request.getLocation() != null) doctor.setLocation(request.getLocation());
-        if (request.getHospitalName() != null) doctor.setHospitalName(request.getHospitalName());
-        if (request.getBio() != null) doctor.setBio(request.getBio());
-        if (request.getYearsOfExperience() != null) doctor.setYearsOfExperience(request.getYearsOfExperience());
-        if (request.getConsultationFee() != null) doctor.setConsultationFee(request.getConsultationFee());
-        if (request.getActive() != null) doctor.setActive(request.getActive());
+        if (request.getFullName() != null) {
+            doctor.setFullName(request.getFullName());
+        }
+
+        if (request.getPrimarySpecialization() != null) {
+            validateSpecialization(request.getPrimarySpecialization());
+            doctor.setPrimarySpecialization(request.getPrimarySpecialization().trim());
+        }
+
+        if (request.getSecondarySpecialization() != null) {
+            if (!request.getSecondarySpecialization().isBlank()) {
+                validateSpecialization(request.getSecondarySpecialization());
+                doctor.setSecondarySpecialization(request.getSecondarySpecialization().trim());
+            } else {
+                doctor.setSecondarySpecialization(null);
+            }
+        }
+
+        if (request.getLocation() != null) {
+            doctor.setLocation(request.getLocation());
+        }
+
+        if (request.getHospitalName() != null) {
+            doctor.setHospitalName(request.getHospitalName());
+        }
+
+        if (request.getBio() != null) {
+            doctor.setBio(request.getBio());
+        }
+
+        if (request.getYearsOfExperience() != null) {
+            doctor.setYearsOfExperience(request.getYearsOfExperience());
+        }
+
+        if (request.getConsultationFee() != null) {
+            doctor.setConsultationFee(request.getConsultationFee());
+        }
+
+        if (request.getActive() != null) {
+            doctor.setActive(request.getActive());
+        }
 
         return mapDoctorResponse(doctorProfileRepository.save(doctor), true);
     }
 
     @Transactional
     public DoctorAvailabilitySlotResponse addAvailabilitySlot(Long doctorId, AvailabilitySlotRequest request) {
-        if (!request.getEndTime().isAfter(request.getStartTime())) {
-            throw new IllegalArgumentException("End time must be after start time");
-        }
+        validateSlotTimes(request.getStartTime(), request.getEndTime());
 
         DoctorProfile doctor = getDoctorEntity(doctorId);
-
-        List<DoctorAvailabilitySlot> existingSlots = slotRepository.findByDoctorIdOrderByStartTimeAsc(doctorId);
-
-        boolean overlaps = existingSlots.stream().anyMatch(slot ->
-                request.getStartTime().isBefore(slot.getEndTime()) &&
-                        request.getEndTime().isAfter(slot.getStartTime())
-        );
-
-        if (overlaps) {
-            throw new IllegalArgumentException("New slot overlaps with an existing slot");
-        }
+        validateSlotOverlap(doctorId, null, request.getStartTime(), request.getEndTime());
 
         DoctorAvailabilitySlot slot = new DoctorAvailabilitySlot();
         slot.setDoctor(doctor);
+        slot.setStartTime(request.getStartTime());
+        slot.setEndTime(request.getEndTime());
+        slot.setAvailable(request.isAvailable());
+        slot.setNotes(request.getNotes());
+
+        return mapSlotResponse(slotRepository.save(slot));
+    }
+
+    @Transactional(readOnly = true)
+    public List<DoctorAvailabilitySlotResponse> getAvailabilitySlots(Long doctorId, boolean availableOnly) {
+        getDoctorEntity(doctorId);
+
+        return slotRepository.findByDoctorIdOrderByStartTimeAsc(doctorId).stream()
+                .filter(slot -> !availableOnly || slot.isAvailable())
+                .map(this::mapSlotResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public DoctorAvailabilitySlotResponse updateAvailabilitySlot(
+            Long doctorId,
+            Long slotId,
+            AvailabilitySlotUpdateRequest request
+    ) {
+        validateSlotTimes(request.getStartTime(), request.getEndTime());
+
+        DoctorAvailabilitySlot slot = slotRepository.findById(slotId)
+                .orElseThrow(() -> new ResourceNotFoundException("Availability slot not found"));
+
+        if (!slot.getDoctor().getId().equals(doctorId)) {
+            throw new IllegalArgumentException("Slot does not belong to the given doctor");
+        }
+
+        validateSlotOverlap(doctorId, slotId, request.getStartTime(), request.getEndTime());
+
         slot.setStartTime(request.getStartTime());
         slot.setEndTime(request.getEndTime());
         slot.setAvailable(request.isAvailable());
@@ -128,7 +194,12 @@ public class DoctorService {
     }
 
     @Transactional(readOnly = true)
-    public List<DoctorSearchResponse> searchDoctors(String specialization, String location, String availableFrom, String availableTo) {
+    public List<DoctorSearchResponse> searchDoctors(
+            String specialization,
+            String location,
+            String availableFrom,
+            String availableTo
+    ) {
         String specializationFilter = normalize(specialization);
         String locationFilter = normalize(location);
 
@@ -166,9 +237,110 @@ public class DoctorService {
         return mapDoctorResponse(doctorProfileRepository.save(doctor), true);
     }
 
+    @Transactional
+    public SpecializationResponse createSpecialization(SpecializationRequest request) {
+        if (specializationRepository.existsByNameIgnoreCase(request.getName().trim())) {
+            throw new IllegalArgumentException("Specialization already exists");
+        }
+
+        DoctorSpecialization specialization = new DoctorSpecialization();
+        specialization.setName(request.getName().trim());
+        specialization.setDescription(request.getDescription());
+        specialization.setActive(request.getActive() == null || request.getActive());
+
+        return mapSpecializationResponse(specializationRepository.save(specialization));
+    }
+
+    @Transactional(readOnly = true)
+    public List<SpecializationResponse> getAllSpecializations(boolean activeOnly) {
+        List<DoctorSpecialization> items = activeOnly
+                ? specializationRepository.findByActiveTrueOrderByNameAsc()
+                : specializationRepository.findAllByOrderByNameAsc();
+
+        return items.stream()
+                .map(this::mapSpecializationResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public SpecializationResponse getSpecializationById(Long id) {
+        DoctorSpecialization specialization = specializationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Specialization not found with id: " + id));
+
+        return mapSpecializationResponse(specialization);
+    }
+
+    @Transactional
+    public SpecializationResponse updateSpecialization(Long id, SpecializationRequest request) {
+        DoctorSpecialization specialization = specializationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Specialization not found with id: " + id));
+
+        String newName = request.getName().trim();
+
+        specializationRepository.findByNameIgnoreCase(newName).ifPresent(existing -> {
+            if (!existing.getId().equals(id)) {
+                throw new IllegalArgumentException("Another specialization already exists with this name");
+            }
+        });
+
+        specialization.setName(newName);
+        specialization.setDescription(request.getDescription());
+        specialization.setActive(request.getActive() == null || request.getActive());
+
+        return mapSpecializationResponse(specializationRepository.save(specialization));
+    }
+
+    @Transactional
+    public void deleteSpecialization(Long id) {
+        DoctorSpecialization specialization = specializationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Specialization not found with id: " + id));
+
+        specialization.setActive(false);
+        specializationRepository.save(specialization);
+    }
+
+    private void validateSpecialization(String specializationName) {
+        if (specializationName == null || specializationName.isBlank()) {
+            throw new IllegalArgumentException("Specialization is required");
+        }
+
+        specializationRepository.findByNameIgnoreCase(specializationName.trim())
+                .filter(DoctorSpecialization::isActive)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid specialization: " + specializationName));
+    }
+
+    private void validateSlotTimes(LocalDateTime start, LocalDateTime end) {
+        if (!end.isAfter(start)) {
+            throw new IllegalArgumentException("End time must be after start time");
+        }
+    }
+
+    private void validateSlotOverlap(Long doctorId, Long currentSlotId, LocalDateTime start, LocalDateTime end) {
+        List<DoctorAvailabilitySlot> existingSlots = slotRepository.findByDoctorIdOrderByStartTimeAsc(doctorId);
+
+        boolean overlaps = existingSlots.stream()
+                .filter(slot -> currentSlotId == null || !slot.getId().equals(currentSlotId))
+                .anyMatch(slot ->
+                        start.isBefore(slot.getEndTime()) &&
+                                end.isAfter(slot.getStartTime())
+                );
+
+        if (overlaps) {
+            throw new IllegalArgumentException("Slot overlaps with an existing slot");
+        }
+    }
+
     private DoctorProfile getDoctorEntity(Long doctorId) {
         return doctorProfileRepository.findById(doctorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+    }
+
+    @Transactional
+    public void deleteDoctor(Long doctorId) {
+        DoctorProfile doctor = getDoctorEntity(doctorId);
+
+        doctor.setActive(false);
+        doctorProfileRepository.save(doctor);
     }
 
     private DoctorSearchResponse buildSearchResponse(DoctorProfile doctor, String availableFrom, String availableTo) {
@@ -213,7 +385,9 @@ public class DoctorService {
     }
 
     private boolean matchesSpecialization(DoctorProfile doctor, String specializationFilter) {
-        if (specializationFilter == null) return true;
+        if (specializationFilter == null) {
+            return true;
+        }
 
         String primary = normalize(doctor.getPrimarySpecialization());
         String secondary = normalize(doctor.getSecondarySpecialization());
@@ -223,7 +397,9 @@ public class DoctorService {
     }
 
     private boolean matchesLocation(DoctorProfile doctor, String locationFilter) {
-        if (locationFilter == null) return true;
+        if (locationFilter == null) {
+            return true;
+        }
 
         String location = normalize(doctor.getLocation());
         String hospital = normalize(doctor.getHospitalName());
@@ -272,6 +448,17 @@ public class DoctorService {
                 .endTime(slot.getEndTime())
                 .available(slot.isAvailable())
                 .notes(slot.getNotes())
+                .build();
+    }
+
+    private SpecializationResponse mapSpecializationResponse(DoctorSpecialization specialization) {
+        return SpecializationResponse.builder()
+                .id(specialization.getId())
+                .name(specialization.getName())
+                .description(specialization.getDescription())
+                .active(specialization.isActive())
+                .createdAt(specialization.getCreatedAt())
+                .updatedAt(specialization.getUpdatedAt())
                 .build();
     }
 }

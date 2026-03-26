@@ -42,4 +42,9 @@ public class DoctorInternalController {
         validateInternalKey(apiKey);
         return doctorService.verifyDoctor(doctorId, request);
     }
+
+    @DeleteMapping("/{doctorId}")
+    public void deleteDoctor(@PathVariable Long doctorId) {
+        doctorService.deleteDoctor(doctorId);
+    }
 }

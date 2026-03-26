@@ -36,6 +36,11 @@ public class DoctorController {
         return doctorService.updateDoctor(doctorId, request);
     }
 
+    @DeleteMapping("/{doctorId}")
+    public void deleteDoctor(@PathVariable Long doctorId) {
+        doctorService.deleteDoctor(doctorId);
+    }
+
     @GetMapping("/search")
     public List<DoctorSearchResponse> searchDoctors(
             @RequestParam(required = false) String specialization,
@@ -52,6 +57,23 @@ public class DoctorController {
             @Valid @RequestBody AvailabilitySlotRequest request
     ) {
         return doctorService.addAvailabilitySlot(doctorId, request);
+    }
+
+    @GetMapping("/{doctorId}/schedule/slots")
+    public List<DoctorAvailabilitySlotResponse> getAvailabilitySlots(
+            @PathVariable Long doctorId,
+            @RequestParam(defaultValue = "false") boolean availableOnly
+    ) {
+        return doctorService.getAvailabilitySlots(doctorId, availableOnly);
+    }
+
+    @PutMapping("/{doctorId}/schedule/slots/{slotId}")
+    public DoctorAvailabilitySlotResponse updateAvailabilitySlot(
+            @PathVariable Long doctorId,
+            @PathVariable Long slotId,
+            @Valid @RequestBody AvailabilitySlotUpdateRequest request
+    ) {
+        return doctorService.updateAvailabilitySlot(doctorId, slotId, request);
     }
 
     @DeleteMapping("/{doctorId}/schedule/slots/{slotId}")
