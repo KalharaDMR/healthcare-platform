@@ -12,6 +12,7 @@ public class UserResponse {
     private boolean approved;
     private LocalDateTime createdAt;
     private Set<Role> roles;
+    private String phoneNumber;
 
     public UserResponse() {}
 
@@ -69,5 +70,13 @@ public class UserResponse {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

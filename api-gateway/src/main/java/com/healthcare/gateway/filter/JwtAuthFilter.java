@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import io.jsonwebtoken.Claims;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthFilter implements GlobalFilter, Ordered {
@@ -57,10 +60,14 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     }
 
     private String extractRoles(String token) {
-        // For now, return empty; you can implement to extract roles from token claims
-        // In your auth service, you should add roles to the token claims during generation.
-        // We'll add a simple method to extract roles from the JWT body (if present).
-        // For simplicity, we'll not extract roles here.
+        Claims claims = jwtUtil.extractAllClaims(token);
+        Object rolesObj = claims.get("roles");
+        if (rolesObj instanceof List) {
+            List<?> rolesList = (List<?>) rolesObj;
+            return rolesList.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(","));
+        }
         return "";
     }
 

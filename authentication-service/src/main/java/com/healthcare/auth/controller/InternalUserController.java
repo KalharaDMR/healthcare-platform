@@ -88,6 +88,7 @@ public class InternalUserController {
         response.setApproved(user.isApproved());
         response.setCreatedAt(user.getCreatedAt());
         response.setRoles(user.getRoles());
+        response.setPhoneNumber(user.getPhoneNumber());
         return response;
     }
 }

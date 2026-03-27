@@ -1,5 +1,6 @@
 package com.healthcare.auth.controller;
 
+import com.healthcare.auth.dto.DoctorRegisterRequest;
 import com.healthcare.auth.dto.LoginRequest;
 import com.healthcare.auth.dto.RegisterRequest;
 import com.healthcare.auth.entity.User;
@@ -34,6 +35,17 @@ public class AuthController {
     @PostMapping("/register")
     public User register(@RequestBody RegisterRequest request) {
         return authService.registerUser(request);
+    }
+
+
+    @PostMapping("/register/doctor")
+    public ResponseEntity<?> registerDoctor(@RequestBody DoctorRegisterRequest request) {
+        try {
+            User user = authService.registerDoctor(request);
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PostMapping("/login")

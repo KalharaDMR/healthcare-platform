@@ -4,6 +4,9 @@ public class UpdateUserRequest {
     private String email;
     private String password;
     private String status;
+    private String phoneNumber;
+    private String specialization;       //  (for doctors only)
+    private String licenseNumber;
 
     public UpdateUserRequest() {}
 
@@ -30,4 +33,30 @@ public class UpdateUserRequest {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    public void setSpecialization(String specialization) {
+        this.specialization = specialization;
+    }
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
+
+
 }

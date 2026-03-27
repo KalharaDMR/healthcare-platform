@@ -1,13 +1,14 @@
 package com.healthcare.auth.dto;
 
-public class RegisterRequest {
+public class DoctorRegisterRequest {
     private String username;
     private String email;
     private String password;
-    private String role;
     private String phoneNumber;
+    private String specialization;
+    private String licenseNumber; // optional
 
-    public RegisterRequest() {}
+    // getters & setters
 
     public String getUsername() {
         return username;
@@ -33,14 +34,6 @@ public class RegisterRequest {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -48,4 +41,22 @@ public class RegisterRequest {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    public void setSpecialization(String specialization) {
+        this.specialization = specialization;
+    }
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
+
+
 }
