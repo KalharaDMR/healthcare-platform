@@ -1,22 +1,17 @@
 server:
-  port: 8088
+  port: 8096
 
 spring:
   application:
-    name: admin-service
-  datasource:
-    url: jdbc:postgresql://localhost:5432/admin_db
-    username: postgres
-    password: 20021021@Rusira
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+    name: aisymptom-service
 
 internal:
   api:
     key: your-secret-internal-key
+
+gemini:
+  api:
+    key: AIzaSyBnXOHNef_C392wxtyAzHp3JLPFeGDbDrg
 
 eureka:
   client:
