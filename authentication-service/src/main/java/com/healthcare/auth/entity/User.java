@@ -16,17 +16,11 @@ public class User {
     @Column(unique = true, nullable = false)
     private String username;
 
-    @Column(nullable=false)
-    private String name;
-
     @Column(unique = true, nullable = false)
     private String email;
 
     @Column(nullable = false)
     private String password;
-
-    @Column(nullable=true)
-    private String specialization;
 
     @Column(nullable = false)
     private String status = "ACTIVE";
@@ -46,10 +40,6 @@ public class User {
 
     public User() {}
 
-    public void setName(String name){this.name = name;}
-    public String getName(){return name;}
-    public void setSpecialization(String specialization) {this.specialization = specialization;}
-    public String getSpecialization(){return  specialization;}
     public Long getId() {
         return id;
     }
