@@ -9,14 +9,13 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
 import java.time.Duration;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class GeminiService {
-    private final WebClient webClient;
+    private final WebClient externalWebClient;
 
     @Value("${gemini.api.key}")
     private String apiKey;
@@ -28,8 +27,8 @@ public class GeminiService {
 
         GeminiRequest request = buildRequest(prompt);
 
-        return webClient.post()
-                .uri(uriBuilder -> uriBuilder
+        return externalWebClient.post()
+                .uri(uriBuilder -> uriBuilder.scheme("https").host("generativelanguage.googleapis.com")
                         .path("/v1beta/models/" + MODEL + ":generateContent")
                         .queryParam("key", apiKey)
                         .build())
@@ -53,7 +52,7 @@ public class GeminiService {
                 .map(this::extractTextSafe)
 
                 // ✅ Timeout
-                .timeout(Duration.ofSeconds(10))
+                .timeout(Duration.ofSeconds(30))
 
                 // ✅ Retry on failure
                 .retry(2)
@@ -61,7 +60,13 @@ public class GeminiService {
                 // ✅ Final fallback
                 .onErrorResume(ex -> {
                     System.out.println("Gemini Error: " + ex.getMessage());
-                    return Mono.just("⚠️ Unable to process request right now.");
+                    return Mono.just("""
+                    {
+                      "recommendedSpecializations": [],
+                      "generalAdvice": "Unable to process request right now.",
+                      "confidenceScore": 0.0
+                    }
+                    """);
                 });
     }
 

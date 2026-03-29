@@ -1,5 +1,7 @@
 package com.example.aisymptom_service.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -8,6 +10,8 @@ import java.util.List;
 
 @Data
 public class PatientRequest {
+    @Min(0)
+    @Max(120)
     @NotNull
     private Integer age;
 

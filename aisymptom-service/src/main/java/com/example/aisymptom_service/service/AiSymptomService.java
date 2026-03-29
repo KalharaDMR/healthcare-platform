@@ -1,21 +1,20 @@
 package com.example.aisymptom_service.service;
-
-import com.example.aisymptom_service.client.ai_symptom_service_client;
+import com.example.aisymptom_service.client.SpecializationClient;
 import com.example.aisymptom_service.dto.AiResponseDto;
 import com.example.aisymptom_service.dto.PatientRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import lombok.RequiredArgsConstructor;
+import reactor.core.scheduler.Schedulers;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AiSymptomService {
 
-    private final ai_symptom_service_client client;
+    private final SpecializationClient client;
     private final Cache<String, List<String>> cache;
     private final GeminiService geminiService;
     public Mono<AiResponseDto> analyze(PatientRequest request) {
@@ -28,13 +27,24 @@ public class AiSymptomService {
     private Mono<List<String>> getSpecializations() {
 
 
-            return Mono.fromCallable(()->cache.get("SPECIALIZATIONS", key ->
-                 client.getSpecializations())).onErrorReturn(List.of("General Physician"));
+        List<String> cached = cache.getIfPresent("SPECIALIZATIONS");
+
+        if (cached != null) {
+            return Mono.just(cached);
+        }
+
+        return client.getSpecializations()
+                .doOnNext(list -> cache.put("SPECIALIZATIONS", list))
+                .subscribeOn(Schedulers.boundedElastic())
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    return Mono.just(List.of("General Physician"));
+                });
 
     }
 
     private String buildPrompt(PatientRequest req, List<String> specs) {
-        return """
+        String name =  """
         You are a medical AI assistant.
     
         SYSTEM RULES:
@@ -76,11 +86,13 @@ public class AiSymptomService {
           "confidenceScore": 0.0
         }
         """.formatted(
-                    req.getAge(),
-                    req.getGender(),
-                    String.join(", ", req.getSymptoms()),
-                    String.join(", ",specs)
-                    );
+                req.getAge(),
+                req.getGender(),
+                String.join(", ", req.getSymptoms()),
+                String.join(", ",specs)
+        );
+        System.out.println("-------------------Prompt--------------------"+name);
+        return name;
     }
 
 
@@ -101,3 +113,4 @@ public class AiSymptomService {
     }
 
 }
+

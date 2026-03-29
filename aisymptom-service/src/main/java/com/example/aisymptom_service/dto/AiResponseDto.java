@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class AiResponseDto {
-    private List<RecommendedSpecialization> recommendedSpecializations;
+    private List<RecommendedSpecialization> recommendedSpecializations = List.of();
 
     private String generalAdvice;
 

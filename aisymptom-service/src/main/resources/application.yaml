@@ -1,6 +1,5 @@
 server:
-  port: 8096
-
+  port: 8089
 spring:
   application:
     name: aisymptom-service
@@ -11,12 +10,12 @@ internal:
 
 gemini:
   api:
-    key: AIzaSyBnXOHNef_C392wxtyAzHp3JLPFeGDbDrg
+   key: AIzaSyAzvZATEFFFQHwFtu9IGYoieRUFJgkCTjE
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://localhost:8098/eureka/
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
