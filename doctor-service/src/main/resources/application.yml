@@ -6,9 +6,14 @@ spring:
     name: doctor-service
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://doctor-db:5432/doctor_db}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:hiruni123}
+#    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://doctor-db:5432/doctor_db}  //use this when run using docker
+#    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+#    password: ${SPRING_DATASOURCE_PASSWORD:hiruni123}
+#    driver-class-name: org.postgresql.Driver
+
+    url: jdbc:postgresql://localhost:5432/doctor_db         #use this is when run locally
+    username: postgres
+    password: hiruni123
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -23,7 +28,8 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
+#      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}   #use when run via docker
+      defaultZone: http://localhost:8761/eureka/               #when run locally
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
