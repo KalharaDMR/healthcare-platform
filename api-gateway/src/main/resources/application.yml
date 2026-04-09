@@ -23,13 +23,21 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
+
         - id: admin-service
           uri: lb://admin-service
           predicates:
             - Path=/api/admin/**
+
         - id: aisymptom-service
           uri: lb://aisymptom-service
           predicates:
+            - Path=/api/ai/**
+
+        - id: doctor-service
+          uri: lb://doctor-service
+          predicates:
+              - Path=/doctor/**
             - Path=/api/ai/**
 
       globalcors:

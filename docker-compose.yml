@@ -1,5 +1,5 @@
 version: '3.8'
-
+######################this is the correct file
 services:
   # PostgreSQL for authentication
   auth-db:
@@ -22,6 +22,18 @@ services:
       POSTGRES_PASSWORD: admin123
     volumes:
       - admin-db-data:/var/lib/postgresql/data
+    networks:
+      - healthcare-net
+
+  # PostgreSQL for doctor
+  doctor-db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: doctor_db
+      POSTGRES_USER: doctor_user
+      POSTGRES_PASSWORD: doctor123
+    volumes:
+      - doctor-db-data:/var/lib/postgresql/data
     networks:
       - healthcare-net
 
@@ -102,6 +114,23 @@ services:
     networks:
       - healthcare-net
 
+  # Doctor Service
+  doctor-service:
+    build: ./doctor-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://doctor-db:5432/doctor_db
+      - SPRING_DATASOURCE_USERNAME=doctor_user
+      - SPRING_DATASOURCE_PASSWORD=doctor123
+      - INTERNAL_API_KEY=your-secret-internal-key
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+      - doctor-db
+    networks:
+      - healthcare-net
+
 
 networks:
   healthcare-net:
@@ -110,3 +139,5 @@ networks:
 volumes:
   auth-db-data:
   admin-db-data:
+  doctor-db-data:
+

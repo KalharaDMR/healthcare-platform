@@ -1,7 +1,12 @@
 package com.healthcare.auth.service;
 
 import com.healthcare.auth.client.AdminServiceClient;
-import com.healthcare.auth.dto.*;
+import com.healthcare.auth.dto.DoctorProfileResponse;
+import com.healthcare.auth.dto.DoctorProfileUpdateRequest;
+import com.healthcare.auth.dto.DoctorRegisterRequest;
+import com.healthcare.auth.dto.RegisterRequest;
+import com.healthcare.auth.dto.RoleChangeRequest;
+import com.healthcare.auth.dto.UpdateUserRequest;
 import com.healthcare.auth.entity.Doctor;
 import com.healthcare.auth.entity.Role;
 import com.healthcare.auth.entity.User;
@@ -23,7 +28,8 @@ public class AuthService {
     private final AdminServiceClient adminServiceClient;
     private final DoctorRepository doctorRepository;
 
-    public AuthService(UserRepository userRepository, RoleRepository roleRepository,
+    public AuthService(UserRepository userRepository,
+                       RoleRepository roleRepository,
                        PasswordEncoder passwordEncoder,
                        AdminServiceClient adminServiceClient,
                        DoctorRepository doctorRepository) {
@@ -68,7 +74,6 @@ public class AuthService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Update basic fields
         if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
             if (userRepository.existsByEmail(request.getEmail())) {
                 throw new RuntimeException("Email already in use");
@@ -90,30 +95,87 @@ public class AuthService {
 
         user = userRepository.save(user);
 
-        // If the user is a doctor, update the doctor profile
         if (user.getRoles().stream().anyMatch(role -> role.getName().equals("DOCTOR"))) {
             Doctor doctor = doctorRepository.findByUserId(id)
                     .orElseThrow(() -> new RuntimeException("Doctor profile not found for user: " + id));
+
             if (request.getSpecialization() != null) {
                 doctor.setSpecialization(request.getSpecialization());
             }
+
             if (request.getLicenseNumber() != null) {
                 doctor.setLicenseNumber(request.getLicenseNumber());
             }
+
             doctorRepository.save(doctor);
         }
 
         return user;
     }
 
+    @Transactional(readOnly = true)
+    public DoctorProfileResponse getDoctorProfileByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+
+        validateDoctorUser(user);
+
+        Doctor doctor = doctorRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Doctor profile not found for user: " + user.getId()));
+
+        return mapToDoctorProfileResponse(user, doctor);
+    }
+
+    @Transactional
+    public DoctorProfileResponse updateDoctorProfileByUsername(String username, DoctorProfileUpdateRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+
+        validateDoctorUser(user);
+
+        Doctor doctor = doctorRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Doctor profile not found for user: " + user.getId()));
+
+        if (request.getEmail() != null
+                && !request.getEmail().isBlank()
+                && !request.getEmail().equals(user.getEmail())) {
+
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new RuntimeException("Email already in use");
+            }
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank()) {
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        if (request.getSpecialization() != null && !request.getSpecialization().isBlank()) {
+            doctor.setSpecialization(request.getSpecialization());
+        }
+
+        if (request.getLicenseNumber() != null && !request.getLicenseNumber().isBlank()) {
+            doctor.setLicenseNumber(request.getLicenseNumber());
+        }
+
+        userRepository.save(user);
+        doctorRepository.save(doctor);
+
+        return mapToDoctorProfileResponse(user, doctor);
+    }
+
     @Transactional
     public void deleteUser(Long id) {
-        // First delete doctor record if it exists (to avoid foreign key constraint violation)
-        doctorRepository.findByUserId(id).ifPresent(doctor -> doctorRepository.delete(doctor));
+        doctorRepository.findByUserId(id).ifPresent(doctorRepository::delete);
 
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("User not found");
         }
+
         userRepository.deleteById(id);
     }
 
@@ -141,16 +203,15 @@ public class AuthService {
 
     @Transactional
     public User registerDoctor(DoctorRegisterRequest request) {
-        // 1. Validate specialization exists via admin service
         List<String> specializations = adminServiceClient.getSpecializations();
         if (!specializations.contains(request.getSpecialization())) {
             throw new RuntimeException("Invalid specialization: " + request.getSpecialization());
         }
 
-        // 2. Create user with role DOCTOR
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Username already taken");
         }
+
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already in use");
         }
@@ -163,12 +224,12 @@ public class AuthService {
 
         Role doctorRole = roleRepository.findByName("DOCTOR")
                 .orElseThrow(() -> new RuntimeException("DOCTOR role not found"));
+
         user.getRoles().add(doctorRole);
-        user.setApproved(false);  // doctors need approval
+        user.setApproved(false);
 
         user = userRepository.save(user);
 
-        // 3. Create doctor profile
         Doctor doctor = new Doctor();
         doctor.setUser(user);
         doctor.setSpecialization(request.getSpecialization());
@@ -176,5 +237,29 @@ public class AuthService {
         doctorRepository.save(doctor);
 
         return user;
+    }
+
+    private void validateDoctorUser(User user) {
+        boolean isDoctor = user.getRoles().stream()
+                .anyMatch(role -> "DOCTOR".equalsIgnoreCase(role.getName()));
+
+        if (!isDoctor) {
+            throw new RuntimeException("User is not a doctor");
+        }
+    }
+
+    private DoctorProfileResponse mapToDoctorProfileResponse(User user, Doctor doctor) {
+        DoctorProfileResponse response = new DoctorProfileResponse();
+        response.setDoctorId(doctor.getId());
+        response.setUserId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setEmail(user.getEmail());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setStatus(user.getStatus());
+        response.setApproved(user.isApproved());
+        response.setCreatedAt(user.getCreatedAt());
+        response.setSpecialization(doctor.getSpecialization());
+        response.setLicenseNumber(doctor.getLicenseNumber());
+        return response;
     }
 }
