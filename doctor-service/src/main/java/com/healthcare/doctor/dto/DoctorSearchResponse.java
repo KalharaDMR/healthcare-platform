@@ -1,5 +1,8 @@
 package com.healthcare.doctor.dto;
 
+import java.time.LocalDate;
+import java.util.List;
+
 public class DoctorSearchResponse {
 
     private Long userId;
@@ -9,6 +12,8 @@ public class DoctorSearchResponse {
     private String location;
     private String verificationStatus;
     private boolean available;
+    private List<String> hospitals;
+    private List<LocalDate> availableDates;
 
     public DoctorSearchResponse() {
     }
@@ -19,7 +24,9 @@ public class DoctorSearchResponse {
                                 String specialization,
                                 String location,
                                 String verificationStatus,
-                                boolean available) {
+                                boolean available,
+                                List<String> hospitals,
+                                List<LocalDate> availableDates) {
         this.userId = userId;
         this.username = username;
         this.doctorName = doctorName;
@@ -27,6 +34,8 @@ public class DoctorSearchResponse {
         this.location = location;
         this.verificationStatus = verificationStatus;
         this.available = available;
+        this.hospitals = hospitals;
+        this.availableDates = availableDates;
     }
 
     public Long getUserId() {
@@ -83,5 +92,21 @@ public class DoctorSearchResponse {
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+
+    public List<String> getHospitals() {
+        return hospitals;
+    }
+
+    public void setHospitals(List<String> hospitals) {
+        this.hospitals = hospitals;
+    }
+
+    public List<LocalDate> getAvailableDates() {
+        return availableDates;
+    }
+
+    public void setAvailableDates(List<LocalDate> availableDates) {
+        this.availableDates = availableDates;
     }
 }

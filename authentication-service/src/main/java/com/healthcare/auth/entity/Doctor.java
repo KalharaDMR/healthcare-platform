@@ -14,13 +14,18 @@ public class Doctor {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column
+    private String doctorName;
+
     @Column(nullable = false)
     private String specialization;
 
-    // optional: other doctor fields (e.g., license number, years of experience)
+    @Column
     private String licenseNumber;
 
-    // constructors, getters, setters
+    @Column
+    private String location;
+
     public Doctor() {}
 
     public Long getId() {
@@ -39,6 +44,14 @@ public class Doctor {
         this.user = user;
     }
 
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+    }
+
     public String getSpecialization() {
         return specialization;
     }
@@ -55,5 +68,11 @@ public class Doctor {
         this.licenseNumber = licenseNumber;
     }
 
+    public String getLocation() {
+        return location;
+    }
 
+    public void setLocation(String location) {
+        this.location = location;
+    }
 }

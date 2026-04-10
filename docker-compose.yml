@@ -1,39 +1,18 @@
 version: '3.8'
-######################this is the correct file
+
 services:
-  # PostgreSQL for authentication
-  auth-db:
-    image: postgres:17
-    environment:
-      POSTGRES_DB: auth_db
-      POSTGRES_USER: auth_user
-      POSTGRES_PASSWORD: auth123
-    volumes:
-      - auth-db-data:/var/lib/postgresql/data
-    networks:
-      - healthcare-net
 
-  # PostgreSQL for admin
-  admin-db:
+  postgres:
     image: postgres:17
+    container_name: postgres-db
+    ports:
+      - "5432:5432"
     environment:
-      POSTGRES_DB: admin_db
-      POSTGRES_USER: admin_user
-      POSTGRES_PASSWORD: admin123
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: hiruni123
+      POSTGRES_DB: healthcare
     volumes:
-      - admin-db-data:/var/lib/postgresql/data
-    networks:
-      - healthcare-net
-
-  # PostgreSQL for doctor
-  doctor-db:
-    image: postgres:17
-    environment:
-      POSTGRES_DB: doctor_db
-      POSTGRES_USER: doctor_user
-      POSTGRES_PASSWORD: doctor123
-    volumes:
-      - doctor-db-data:/var/lib/postgresql/data
+      - ./docker-data/postgres:/var/lib/postgresql/data  #for data persistency
     networks:
       - healthcare-net
 
@@ -45,6 +24,8 @@ services:
     environment:
       - EUREKA_INSTANCE_HOSTNAME=eureka-server
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
     networks:
       - healthcare-net
 
@@ -54,14 +35,14 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-db:5432/auth_db
-      - SPRING_DATASOURCE_USERNAME=auth_user
-      - SPRING_DATASOURCE_PASSWORD=auth123
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/healthcare
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=hiruni123
       - JWT_SECRET=mySecretKeyForJWTGenerationWithAtLeast32CharactersLong
       - JWT_EXPIRATION=3600000
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
-      - auth-db
+      - postgres
       - eureka-server
     networks:
       - healthcare-net
@@ -72,13 +53,13 @@ services:
     ports:
       - "8088:8088"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://admin-db:5432/admin_db
-      - SPRING_DATASOURCE_USERNAME=admin_user
-      - SPRING_DATASOURCE_PASSWORD=admin123
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/healthcare
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=hiruni123
       - INTERNAL_API_KEY=your-secret-internal-key
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
-      - admin-db
+      - postgres
       - eureka-server
     networks:
       - healthcare-net
@@ -87,7 +68,7 @@ services:
   api-gateway:
     build: ./api-gateway
     ports:
-      - "8089:8089"          # host:container
+      - "8089:8089"
     environment:
       - JWT_SECRET=mySecretKeyForJWTGenerationWithAtLeast32CharactersLong
       - JWT_EXPIRATION=3600000
@@ -99,6 +80,7 @@ services:
     networks:
       - healthcare-net
 
+  # AI Symptom Service
   aisymptom-service:
     image: 2002rusira/aisymptomservice:v2
     ports:
@@ -120,24 +102,17 @@ services:
     ports:
       - "8083:8083"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://doctor-db:5432/doctor_db
-      - SPRING_DATASOURCE_USERNAME=doctor_user
-      - SPRING_DATASOURCE_PASSWORD=doctor123
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/healthcare
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=hiruni123
       - INTERNAL_API_KEY=your-secret-internal-key
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
+      - postgres
       - eureka-server
-      - doctor-db
     networks:
       - healthcare-net
-
 
 networks:
   healthcare-net:
     driver: bridge
-
-volumes:
-  auth-db-data:
-  admin-db-data:
-  doctor-db-data:
-

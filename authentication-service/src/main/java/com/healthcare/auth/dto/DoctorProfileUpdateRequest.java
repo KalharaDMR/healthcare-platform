@@ -2,13 +2,23 @@ package com.healthcare.auth.dto;
 
 public class DoctorProfileUpdateRequest {
 
+    private String doctorName;
     private String email;
     private String phoneNumber;
     private String password;
     private String specialization;
     private String licenseNumber;
+    private String location;
 
     public DoctorProfileUpdateRequest() {
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
     }
 
     public String getEmail() {
@@ -49,5 +59,13 @@ public class DoctorProfileUpdateRequest {
 
     public void setLicenseNumber(String licenseNumber) {
         this.licenseNumber = licenseNumber;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

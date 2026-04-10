@@ -5,7 +5,7 @@ spring:
   application:
     name: admin-service
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/admin_db}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/admin_db}
     username: ${SPRING_DATASOURCE_USERNAME:admin_user}
     password: ${SPRING_DATASOURCE_PASSWORD:admin123}
     driver-class-name: org.postgresql.Driver
@@ -21,7 +21,7 @@ internal:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}

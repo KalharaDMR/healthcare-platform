@@ -7,6 +7,7 @@ public class DoctorProfileResponse {
     private Long doctorId;
     private Long userId;
     private String username;
+    private String doctorName;
     private String email;
     private String phoneNumber;
     private String status;
@@ -14,6 +15,7 @@ public class DoctorProfileResponse {
     private LocalDateTime createdAt;
     private String specialization;
     private String licenseNumber;
+    private String location;
 
     public DoctorProfileResponse() {
     }
@@ -40,6 +42,14 @@ public class DoctorProfileResponse {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
     }
 
     public String getEmail() {
@@ -96,5 +106,13 @@ public class DoctorProfileResponse {
 
     public void setLicenseNumber(String licenseNumber) {
         this.licenseNumber = licenseNumber;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

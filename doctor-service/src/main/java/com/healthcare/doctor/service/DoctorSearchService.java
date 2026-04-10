@@ -24,23 +24,57 @@ public class DoctorSearchService {
 
     public List<DoctorSearchResponse> search(String name,
                                              String specialization,
-                                             String location,
+                                             String hospital,
                                              Boolean available,
                                              LocalDate date) {
 
         List<DoctorMeta> doctors = doctorMetaRepository.findAll().stream()
                 .filter(meta -> "VERIFIED".equalsIgnoreCase(meta.getVerificationStatus()))
-                .filter(meta -> name == null || name.isBlank()
-                        || meta.getDoctorName().toLowerCase().contains(name.trim().toLowerCase()))
-                .filter(meta -> specialization == null || specialization.isBlank()
-                        || meta.getSpecialization().equalsIgnoreCase(specialization.trim()))
-                .filter(meta -> location == null || location.isBlank()
-                        || meta.getLocation().equalsIgnoreCase(location.trim()))
+                .filter(meta -> {
+                    if (name == null || name.isBlank()) {
+                        return true;
+                    }
+
+                    String keyword = name.trim().toLowerCase();
+
+                    return (meta.getDoctorName() != null && meta.getDoctorName().toLowerCase().contains(keyword))
+                            || (meta.getUsername() != null && meta.getUsername().toLowerCase().contains(keyword));
+                })
+                .filter(meta -> {
+                    if (specialization == null || specialization.isBlank()) {
+                        return true;
+                    }
+
+                    return meta.getSpecialization() != null
+                            && meta.getSpecialization().toLowerCase().contains(specialization.trim().toLowerCase());
+                })
                 .toList();
 
         return doctors.stream()
                 .map(meta -> {
-                    boolean hasAvailability = hasAvailability(meta.getUsername(), date);
+                    List<AvailabilitySlot> slots = availabilityRepository
+                            .findByDoctorUsernameOrderByDateAscStartTimeAsc(meta.getUsername())
+                            .stream()
+                            .filter(AvailabilitySlot::isAvailable)
+                            .filter(slot -> hospital == null || hospital.isBlank()
+                                    || (slot.getHospital() != null
+                                    && slot.getHospital().toLowerCase().contains(hospital.trim().toLowerCase())))
+                            .filter(slot -> date == null || slot.getDate().equals(date))
+                            .toList();
+
+                    boolean hasAvailability = !slots.isEmpty();
+
+                    List<String> hospitals = slots.stream()
+                            .map(AvailabilitySlot::getHospital)
+                            .filter(h -> h != null && !h.isBlank())
+                            .distinct()
+                            .toList();
+
+                    List<LocalDate> availableDates = slots.stream()
+                            .map(AvailabilitySlot::getDate)
+                            .distinct()
+                            .toList();
+
                     return new DoctorSearchResponse(
                             meta.getUserId(),
                             meta.getUsername(),
@@ -48,19 +82,18 @@ public class DoctorSearchService {
                             meta.getSpecialization(),
                             meta.getLocation(),
                             meta.getVerificationStatus(),
-                            hasAvailability
+                            hasAvailability,
+                            hospitals,
+                            availableDates
                     );
                 })
                 .filter(response -> available == null || response.isAvailable() == available)
+                .filter(response -> {
+                    if ((hospital != null && !hospital.isBlank()) || date != null) {
+                        return response.isAvailable();
+                    }
+                    return true;
+                })
                 .toList();
-    }
-
-    private boolean hasAvailability(String doctorUsername, LocalDate date) {
-        List<AvailabilitySlot> slots =
-                availabilityRepository.findByDoctorUsernameOrderByDateAscStartTimeAsc(doctorUsername);
-
-        return slots.stream()
-                .filter(AvailabilitySlot::isAvailable)
-                .anyMatch(slot -> date == null || slot.getDate().equals(date));
     }
 }

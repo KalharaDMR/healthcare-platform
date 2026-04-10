@@ -27,10 +27,11 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath();
 
         // Skip auth endpoints (no token required)
-        if (path.startsWith("/api/auth/")) {
+        if (path.startsWith("/api/auth/")
+                || path.startsWith("/api/doctor/search")
+                || path.startsWith("/api/doctor/availability/public/")) {
             return chain.filter(exchange);
         }
-
         // Extract token from Authorization header
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
