@@ -1,10 +1,10 @@
 package com.healthcare.patient_service.controller;
 
-import com.healthcare.patient_service.dto.CreateMedicalReportRequest;
+import com.healthcare.patient_service.client.AuthClient;
 import com.healthcare.patient_service.dto.MedicalReportResponse;
 import com.healthcare.patient_service.entity.MedicalReport;
 import com.healthcare.patient_service.service.MedicalReportService;
-import com.healthcare.patient_service.service.PatientService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,64 +16,49 @@ import java.util.List;
 public class MedicalReportController {
 
     private final MedicalReportService reportService;
-    private final PatientService patientService;
+    private final AuthClient authClient;
+
+    @Value("${internal.api.key}")
+    private String apiKey;
 
     public MedicalReportController(MedicalReportService reportService,
-                                   PatientService patientService) {
+                                   AuthClient authClient) {
         this.reportService = reportService;
-        this.patientService = patientService;
+        this.authClient = authClient;
     }
 
-    // Upload a medical report for a patient
-    @PostMapping("/upload/{patientId}")
-    public MedicalReportResponse uploadReport(@PathVariable Long patientId,
-                                              @RequestParam("file") MultipartFile file) {
-        // Verify patient exists
-        patientService.getById(patientId);
+    @PostMapping("/upload/{userId}")
+    public MedicalReportResponse upload(@PathVariable Long userId,
+                                        @RequestParam("file") MultipartFile file) {
+
+        authClient.getUserById(userId, apiKey);
 
         try {
-            // Create patient-specific folder if it doesn't exist
-            File uploadDir = new File("uploads/patient_" + patientId);
-            if (!uploadDir.exists()) uploadDir.mkdirs();
+            File dir = new File("uploads/patient_" + userId);
+            if (!dir.exists()) dir.mkdirs();
 
-            // Save file locally
-            File dest = new File(uploadDir, file.getOriginalFilename());
+            File dest = new File(dir, file.getOriginalFilename());
             file.transferTo(dest);
 
-            // Save MedicalReport entity
             MedicalReport report = new MedicalReport();
-            report.setPatientId(patientId);
+            report.setUserId(userId);
             report.setFileName(file.getOriginalFilename());
             report.setFilePath(dest.getAbsolutePath());
 
-            MedicalReport savedReport = reportService.save(report);
-
-            // Return DTO
-            return reportService.toResponse(savedReport);
+            return reportService.toResponse(reportService.save(report));
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to upload report: " + e.getMessage());
+            throw new RuntimeException("Upload failed");
         }
     }
 
-    // Get all reports
-    @GetMapping
-    public List<MedicalReportResponse> getAllReports() {
-        return reportService.toResponseList(reportService.getAll());
-    }
+    @GetMapping("/user/{userId}")
+    public List<MedicalReportResponse> getByUser(@PathVariable Long userId) {
 
-    // Get reports by patient
-    @GetMapping("/patient/{patientId}")
-    public List<MedicalReportResponse> getReportsByPatient(@PathVariable Long patientId) {
-        // Verify patient exists
-        patientService.getById(patientId);
+        authClient.getUserById(userId, apiKey);
 
-        return reportService.toResponseList(reportService.getByPatientId(patientId));
-    }
-
-    // Get report by ID
-    @GetMapping("/{id}")
-    public MedicalReportResponse getReportById(@PathVariable Long id) {
-        return reportService.toResponse(reportService.getById(id));
+        return reportService.toResponseList(
+                reportService.getByUserId(userId)
+        );
     }
 }

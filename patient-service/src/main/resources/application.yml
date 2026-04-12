@@ -27,7 +27,7 @@ spring:
 
   # Upload folder configuration
   file:
-    upload-dir: uploads   # <-- change this if you want an absolute path, e.g., C:/Users/saral/uploads
+    upload-dir: uploads   # change if you want an absolute path, e.g., C:/Users/saral/uploads
 
 management:
   endpoints:
@@ -41,6 +41,14 @@ management:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/  # URL of your Eureka Server
+      defaultZone: http://localhost:8761/eureka/
   instance:
     prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# ==========================
+# Internal API Key for Auth Service
+# ==========================
+internal:
+  api:
+    key: your-secret-internal-key  # <-- must match the key in auth-service

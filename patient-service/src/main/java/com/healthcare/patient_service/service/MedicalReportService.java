@@ -1,8 +1,10 @@
 package com.healthcare.patient_service.service;
 
+import com.healthcare.patient_service.client.AuthClient;
 import com.healthcare.patient_service.dto.MedicalReportResponse;
 import com.healthcare.patient_service.entity.MedicalReport;
 import com.healthcare.patient_service.repository.MedicalReportRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,48 +14,46 @@ import java.util.stream.Collectors;
 public class MedicalReportService {
 
     private final MedicalReportRepository repository;
+    private final AuthClient authClient;
 
-    public MedicalReportService(MedicalReportRepository repository) {
+    @Value("${internal.api.key}")
+    private String apiKey;
+
+    public MedicalReportService(MedicalReportRepository repository, AuthClient authClient) {
         this.repository = repository;
+        this.authClient = authClient;
     }
 
-    // Save a new medical report
     public MedicalReport save(MedicalReport report) {
+
+        if (report.getUserId() != null) {
+            authClient.getUserById(report.getUserId(), apiKey);
+        }
+
         return repository.save(report);
     }
 
-    // Get all reports
     public List<MedicalReport> getAll() {
         return repository.findAll();
     }
 
-    // Get report by ID
-    public MedicalReport getById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Medical report not found with ID: " + id));
+    public List<MedicalReport> getByUserId(Long userId) {
+
+        authClient.getUserById(userId, apiKey);
+
+        return repository.findByUserId(userId);
     }
 
-    // Get all reports for a patient
-    public List<MedicalReport> getByPatientId(Long patientId) {
-        return repository.findAll().stream()
-                .filter(r -> r.getPatientId().equals(patientId))
-                .collect(Collectors.toList());
-    }
-
-    // Convert MedicalReport entity → MedicalReportResponse DTO
     public MedicalReportResponse toResponse(MedicalReport report) {
         MedicalReportResponse dto = new MedicalReportResponse();
         dto.setId(report.getId());
-        dto.setPatientId(report.getPatientId());
+        dto.setUserId(report.getUserId());
         dto.setFileName(report.getFileName());
         dto.setFilePath(report.getFilePath());
         return dto;
     }
 
-    // Convert list of MedicalReport entities → list of DTOs
     public List<MedicalReportResponse> toResponseList(List<MedicalReport> reports) {
-        return reports.stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+        return reports.stream().map(this::toResponse).collect(Collectors.toList());
     }
 }

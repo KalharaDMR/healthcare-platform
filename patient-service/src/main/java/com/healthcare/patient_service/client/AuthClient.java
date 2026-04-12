@@ -1,12 +1,17 @@
 package com.healthcare.patient_service.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "auth-service")  // Eureka service name
+import java.util.List;
+
+@FeignClient(name = "auth-service")
 public interface AuthClient {
 
-    @GetMapping("/api/users/{userId}")
-    AuthUserResponse getUserById(@PathVariable("userId") String userId);
+    @GetMapping("/internal/users/{id}")
+    Object getUserById(@PathVariable("id") Long id,
+                       @RequestHeader("X-INTERNAL-KEY") String apiKey);
+
+    @GetMapping("/internal/users")
+    List<Object> getAllUsers(@RequestHeader("X-INTERNAL-KEY") String apiKey);
 }

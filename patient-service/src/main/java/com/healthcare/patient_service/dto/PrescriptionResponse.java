@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class PrescriptionResponse {
     private Long id;
-    private Long patientId;
+    private Long userId;     // Changed to Long
     private String doctorId;
     private String medications;
     private String notes;

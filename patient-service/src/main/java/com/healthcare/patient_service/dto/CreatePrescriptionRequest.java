@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class CreatePrescriptionRequest {
-    private Long patientId;
+    private Long userId;
     private String doctorId;
     private String medications;
     private String notes;

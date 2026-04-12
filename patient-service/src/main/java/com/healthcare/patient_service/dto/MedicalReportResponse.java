@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class MedicalReportResponse {
     private Long id;
-    private Long patientId;
+    private Long userId;     // Changed to Long
     private String fileName;
     private String filePath;
 }
