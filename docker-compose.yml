@@ -134,6 +134,23 @@ services:
     networks:
       - healthcare-net
 
+  # Patient Service
+  patient-service:
+    build: ./patient-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/patient_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=Ramesh123
+      - INTERNAL_API_KEY=your-secret-internal-key
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - eureka-server
+    networks:
+      - healthcare-net
+
 networks:
   healthcare-net:
     driver: bridge
