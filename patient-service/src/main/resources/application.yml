@@ -6,9 +6,9 @@ spring:
     name: patient-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/patient_service
-    username: postgres
-    password: Sarala31!
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/patient_service}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:Sarala31!}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -25,9 +25,8 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
-  # Upload folder configuration
   file:
-    upload-dir: uploads   # change if you want an absolute path, e.g., C:/Users/saral/uploads
+    upload-dir: uploads
 
 management:
   endpoints:
@@ -35,20 +34,14 @@ management:
       exposure:
         include: "*"
 
-# ==========================
-# Eureka Client Configuration
-# ==========================
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
 
-# ==========================
-# Internal API Key for Auth Service
-# ==========================
 internal:
   api:
-    key: your-secret-internal-key  # <-- must match the key in auth-service
+    key: ${INTERNAL_API_KEY:your-secret-internal-key}
