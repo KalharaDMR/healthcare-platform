@@ -6,9 +6,9 @@ spring:
     name: doctor-service
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/healthcare}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/doctor_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:hiruni123}
+    password: ${SPRING_DATASOURCE_PASSWORD:Ramesh123}
     driver-class-name: org.postgresql.Driver
 
   jpa:

@@ -9,8 +9,8 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: hiruni123
-      POSTGRES_DB: healthcare
+      POSTGRES_PASSWORD: Ramesh123
+      POSTGRES_DB: postgres
     volumes:
       - ./docker-data/postgres:/var/lib/postgresql/data  #for data persistency
     networks:
@@ -35,9 +35,9 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/healthcare
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth_db
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=hiruni123
+      - SPRING_DATASOURCE_PASSWORD=Ramesh123
       - JWT_SECRET=mySecretKeyForJWTGenerationWithAtLeast32CharactersLong
       - JWT_EXPIRATION=3600000
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -53,9 +53,9 @@ services:
     ports:
       - "8088:8088"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/healthcare
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/admin_db
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=hiruni123
+      - SPRING_DATASOURCE_PASSWORD=Ramesh123
       - INTERNAL_API_KEY=your-secret-internal-key
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
@@ -102,29 +102,9 @@ services:
     ports:
       - "8083:8083"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/healthcare
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/doctor_db
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=hiruni123
-      - INTERNAL_API_KEY=your-secret-internal-key
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-    depends_on:
-      - postgres
-      - eureka-server
-    networks:
-      - healthcare-net
-
-
-
-  telemedicine-service:
-    build: ./telemedicine-service
-    ports:
-      - "8087:8087"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/telemedicine_db
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=hiruni123
-      - AGORA_APP_ID=${AGORA_APP_ID}
-      - AGORA_APP_CERTIFICATE=${AGORA_APP_CERTIFICATE}
+      - SPRING_DATASOURCE_PASSWORD=Ramesh123
       - INTERNAL_API_KEY=your-secret-internal-key
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
