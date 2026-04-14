@@ -36,14 +36,12 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            System.out.println("----------------------------UNAUTHORIZEDDDD---------------------------------------------------------------------------------------------");
             return exchange.getResponse().setComplete();
         }
 
         String token = authHeader.substring(7);
         if (!jwtUtil.validateToken(token)) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            System.out.println("-------------------------------------------Rusiraaaaaaaaa--------------------------------------------------------------------------------");
             return exchange.getResponse().setComplete();
         }
 

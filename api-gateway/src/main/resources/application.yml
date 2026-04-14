@@ -44,6 +44,11 @@ spring:
           predicates:
             - Path=/api/appointments/**
 
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+
       globalcors:
         corsConfigurations:
           '[/**]':

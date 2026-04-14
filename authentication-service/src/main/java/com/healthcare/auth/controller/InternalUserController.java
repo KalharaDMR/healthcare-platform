@@ -5,6 +5,7 @@ import com.healthcare.auth.entity.User;
 import com.healthcare.auth.repository.UserRepository;
 import com.healthcare.auth.service.AuthService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
         import java.util.List;
@@ -31,6 +32,18 @@ public class InternalUserController {
         }
     }
 
+    @GetMapping("/getDoctor")
+    public ResponseEntity<?> getDoctorProfile(@RequestParam String doctorUserName)
+    {
+        try {
+            DoctorProfileResponse response = authService.getDoctorProfileByUsername(doctorUserName);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
+    }
+
     @GetMapping("/users")
     public List<UserResponse> getAllUsers(@RequestHeader(value = "X-INTERNAL-KEY", required = false) String apiKey) {
         validateApiKey(apiKey);
@@ -45,6 +58,12 @@ public class InternalUserController {
         return toResponse(user);
     }
 
+    @GetMapping("/users/{username}")
+    public UserResponse getUserByUserName(@PathVariable String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return toResponse(user);
+    }
+
     @PutMapping("/users/{id}")
     public UserResponse updateUser(@PathVariable Long id,
                                    @RequestBody UpdateUserRequest request,
@@ -53,6 +72,8 @@ public class InternalUserController {
         User updated = authService.updateUser(id, request);
         return toResponse(updated);
     }
+
+
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id,

@@ -26,7 +26,7 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentResponse book(String patientUsername, AppointmentCreateRequest request) {
+    public AppointmentResponse book(String patientUsername, AppointmentCreateRequest request,Boolean isEnableVideo) {
         Boolean available = doctorServiceClient.validate(request.getSlotId());
         if (!Boolean.TRUE.equals(available)) {
             throw new RuntimeException("Selected slot is not available");
@@ -42,6 +42,7 @@ public class AppointmentService {
         try {
             Appointment appointment = new Appointment();
             appointment.setSlotId(slot.getId());
+            appointment.setIsVideoConferencingAppointment(isEnableVideo);
             appointment.setPatientUsername(patientUsername);
             appointment.setDoctorUsername(slot.getDoctorUsername());
             appointment.setHospital(slot.getHospital());
@@ -85,8 +86,8 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentResponse cancelMyAppointment(Long appointmentId, String patientUsername) {
-        Appointment appointment = appointmentRepository.findByIdAndPatientUsername(appointmentId, patientUsername)
+    public AppointmentResponse cancelMyAppointment(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
         if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
@@ -157,6 +158,11 @@ public class AppointmentService {
         }
     }
 
+    public AppointmentResponse getAppointment(Long appointmentId)
+    {
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(()->new RuntimeException("Appointment is not found"));
+        return  toResponse(appointment);
+    }
     @Transactional
     public AppointmentResponse updateStatusForDoctor(Long appointmentId,
                                                      String doctorUsername,

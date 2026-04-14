@@ -27,14 +27,9 @@ public class AppointmentController {
 
     @PostMapping
     public ResponseEntity<AppointmentResponse> book(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-            @Valid @RequestBody AppointmentCreateRequest request) {
-
-        String token = extractToken(authorizationHeader);
-        ensureRole(token, "ROLE_PATIENT");
-
-        String username = jwtUtil.extractUsername(token);
-        return ResponseEntity.ok(appointmentService.book(username, request));
+            @RequestParam String username,
+            @Valid @RequestBody AppointmentCreateRequest request,@RequestParam Boolean isEnableVideo) {
+        return ResponseEntity.ok(appointmentService.book(username, request,isEnableVideo));
     }
 
     @GetMapping("/my")
@@ -61,16 +56,19 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.getMyAppointmentById(appointmentId, username));
     }
 
+    @GetMapping("/myAppointment")
+    public ResponseEntity<AppointmentResponse> myAppointment(
+            @RequestParam Long appointmentId) {
+            AppointmentResponse appointmentResponse = appointmentService.getAppointment(appointmentId);
+            return  ResponseEntity.ok(appointmentResponse);
+    }
+
+
+
     @PutMapping("/my/{appointmentId}/cancel")
     public ResponseEntity<AppointmentResponse> cancelMyAppointment(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
             @PathVariable Long appointmentId) {
-
-        String token = extractToken(authorizationHeader);
-        ensureRole(token, "ROLE_PATIENT");
-
-        String username = jwtUtil.extractUsername(token);
-        return ResponseEntity.ok(appointmentService.cancelMyAppointment(appointmentId, username));
+        return ResponseEntity.ok(appointmentService.cancelMyAppointment(appointmentId));
     }
 
     @PutMapping("/my/{appointmentId}/reschedule")

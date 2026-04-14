@@ -20,6 +20,7 @@ public class AppointmentResponse {
     private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Boolean isVideoConferencingAppointment;
 
     public AppointmentResponse() {
     }
@@ -32,6 +33,8 @@ public class AppointmentResponse {
         this.id = id;
     }
 
+    public void setIsVideoConferencingAppointment(Boolean isVideoConferencingAppointment){this.isVideoConferencingAppointment=isVideoConferencingAppointment;}
+    public Boolean getIsVideoConferencingAppointment(){return isVideoConferencingAppointment;}
     public Long getSlotId() {
         return slotId;
     }

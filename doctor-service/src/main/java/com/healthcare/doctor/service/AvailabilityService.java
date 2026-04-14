@@ -26,6 +26,8 @@ public class AvailabilityService {
         slot.setStartTime(request.getStartTime());
         slot.setEndTime(request.getEndTime());
         slot.setHospital(request.getHospital().trim());
+        slot.setCostForTheNormalAppointment(request.getCostForTheNormalAppointment());
+        slot.setCostForTheVideoConferencingAppointment(request.getCostForTheVideoConferencingAppointment());
         slot.setAvailable(request.getAvailable() == null || request.getAvailable());
 
         return repository.save(slot);

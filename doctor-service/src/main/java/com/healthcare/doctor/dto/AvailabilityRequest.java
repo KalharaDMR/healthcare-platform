@@ -1,10 +1,12 @@
 package com.healthcare.doctor.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -28,8 +30,24 @@ public class AvailabilityRequest {
 
     private Boolean available;
 
+    private BigDecimal costForTheVideoConferencingAppointment;
+
+    private BigDecimal costForTheNormalAppointment;
     public AvailabilityRequest() {
     }
+
+    public void setCostForTheNormalAppointment(BigDecimal costForTheNormalAppointment)
+    {this.costForTheNormalAppointment = costForTheNormalAppointment;}
+
+    public BigDecimal getCostForTheNormalAppointment()
+    {
+        return costForTheNormalAppointment;
+    }
+
+    public void setCostForTheVideoConferencingAppointment(BigDecimal costForTheVideoConferencingAppointment)
+    {this.costForTheVideoConferencingAppointment = costForTheVideoConferencingAppointment;}
+
+    public BigDecimal getCostForTheVideoConferencingAppointment(){return costForTheVideoConferencingAppointment;}
 
     public LocalDate getDate() {
         return date;

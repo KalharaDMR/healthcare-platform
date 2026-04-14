@@ -30,6 +30,9 @@ public class Appointment {
     private LocalDate appointmentDate;
 
     @Column(nullable = false)
+    private Boolean isVideoConferencingAppointment;
+
+    @Column(nullable = false)
     private LocalTime startTime;
 
     @Column(nullable = false)
@@ -62,6 +65,10 @@ public class Appointment {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void setIsVideoConferencingAppointment(Boolean isVideoConferencingAppointment)
+    {this.isVideoConferencingAppointment = isVideoConferencingAppointment;}
+
+    public Boolean getIsVideoConferencingAppointment(){return isVideoConferencingAppointment;}
     public Long getId() {
         return id;
     }

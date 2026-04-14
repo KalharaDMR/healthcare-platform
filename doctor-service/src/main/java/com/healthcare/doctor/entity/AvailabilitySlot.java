@@ -1,6 +1,8 @@
 package com.healthcare.doctor.entity;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -30,6 +32,12 @@ public class AvailabilitySlot {
 
     @Column(nullable = false)
     private boolean available;
+
+    @Column(nullable = false)
+    private BigDecimal costForTheVideoConferencingAppointment;
+
+    @Column(nullable = false)
+    private BigDecimal costForTheNormalAppointment;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -111,4 +119,14 @@ public class AvailabilitySlot {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+
+    public void setCostForTheVideoConferencingAppointment(BigDecimal costForTheVideoConferencingAppointment)
+    {this.costForTheVideoConferencingAppointment = costForTheVideoConferencingAppointment;}
+
+    public BigDecimal getCostForTheVideoConferencingAppointment(){return costForTheVideoConferencingAppointment;}
+
+    public void setCostForTheNormalAppointment(BigDecimal costForTheNormalAppointment)
+    {this.costForTheNormalAppointment = costForTheNormalAppointment;}
+
+    public BigDecimal getCostForTheNormalAppointment(){return  costForTheNormalAppointment;}
 }
