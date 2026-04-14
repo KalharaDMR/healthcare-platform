@@ -23,27 +23,30 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
-
         - id: admin-service
           uri: lb://admin-service
           predicates:
             - Path=/api/admin/**
-
         - id: ai-service
           uri: lb://aisymptom-service
           predicates:
             - Path=/api/ai/**
-
         - id: doctor-service
           uri: lb://doctor-service
           predicates:
             - Path=/api/doctor/**
-
         - id: appointment-service
           uri: lb://appointment-service
           predicates:
             - Path=/api/appointments/**
-
+        - id: patient-service
+          uri: lb://patient-service
+          predicates:
+            - Path=/api/patients/**
+        - id: telemedicine-service
+          uri: lb://telemedicine-service
+          predicates:
+            - Path=/api/video/**
       globalcors:
         corsConfigurations:
           '[/**]':

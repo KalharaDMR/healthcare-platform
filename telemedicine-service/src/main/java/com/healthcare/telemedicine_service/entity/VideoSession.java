@@ -113,11 +113,5 @@ public class VideoSession {
         this.endedAt = endedAt;
     }
 
-        public enum SessionStatus {
-            CREATED,
-            ACTIVE,
-            ENDED
-        }
-
 
 }

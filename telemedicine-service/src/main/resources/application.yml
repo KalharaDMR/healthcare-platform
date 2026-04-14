@@ -15,8 +15,8 @@ spring:
     show-sql: true
 
 agora:
-  appId: ${AGORA_APP_ID:your_app_id}
-  appCertificate: ${AGORA_APP_CERTIFICATE:your_certificate}
+  appId: ${AGORA_APP_ID:561899df7fda4457834c5ee78b138ceb}
+  appCertificate: ${AGORA_APP_CERTIFICATE:83a881e9cf58444e944e3428d327806b}
   expiration: 3600   # token validity in seconds
 
 eureka:
@@ -34,3 +34,6 @@ internal:
 logging:
   level:
     com.healthcare.telemedicine: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForJWTGenerationWithAtLeast32CharactersLong}

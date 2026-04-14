@@ -151,6 +151,24 @@ services:
     networks:
       - healthcare-net
 
+  telemedicine-service:
+    build: ./telemedicine-service
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/telemedicine_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=Ramesh123
+      - AGORA_APP_ID=561899df7fda4457834c5ee78b138ceb
+      - AGORA_APP_CERTIFICATE=83a881e9cf58444e944e3428d327806b
+      - INTERNAL_API_KEY=your-secret-internal-key
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - eureka-server
+    networks:
+      - healthcare-net
+
 networks:
   healthcare-net:
     driver: bridge

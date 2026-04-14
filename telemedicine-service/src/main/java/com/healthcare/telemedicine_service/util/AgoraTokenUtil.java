@@ -1,6 +1,5 @@
 package com.healthcare.telemedicine_service.util;
 
-import io.agora.media.DynamicKey5;
 import io.agora.media.RtcTokenBuilder2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,9 +18,26 @@ public class AgoraTokenUtil {
 
     public String generateToken(String channelName, int uid, int role) {
         RtcTokenBuilder2 tokenBuilder = new RtcTokenBuilder2();
-        // role: 1 = publisher, 2 = subscriber (audience)
-        int tokenRole = (role == 1) ? RtcTokenBuilder2.RoleRolePublisher : RtcTokenBuilder2.RoleRoleSubscriber;
-        String token = tokenBuilder.buildTokenWithUid(appId, appCertificate, channelName, uid, tokenRole, expirationInSeconds);
+        RtcTokenBuilder2.Role tokenRole;
+
+        // Assign the correct enum constant based on the 'role' parameter
+        // 1 = Publisher (host), other = Subscriber (audience)
+        if (role == 1) {
+            tokenRole = RtcTokenBuilder2.Role.ROLE_PUBLISHER;
+        } else {
+            tokenRole = RtcTokenBuilder2.Role.ROLE_SUBSCRIBER;
+        }
+
+        // Build and return the token
+        String token = tokenBuilder.buildTokenWithUid(
+                appId,
+                appCertificate,
+                channelName,
+                uid,
+                tokenRole,
+                expirationInSeconds,
+                expirationInSeconds
+        );
         return token;
     }
 }
