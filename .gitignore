@@ -16,3 +16,5 @@ logs/
 # Application secrets (if any)
 application-dev.properties
 application-prod.properties
+
+docker-data/

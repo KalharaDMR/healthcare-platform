@@ -1,15 +1,14 @@
 server:
   port: 8089
 
-
 jwt:
-  secret: mySecretKeyForJWTGenerationWithAtLeast32CharactersLong
-  expiration: 3600000
+  secret: ${JWT_SECRET:mySecretKeyForJWTGenerationWithAtLeast32CharactersLong}
+  expiration: ${JWT_EXPIRATION:3600000}
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
@@ -28,3 +27,40 @@ spring:
           uri: lb://admin-service
           predicates:
             - Path=/api/admin/**
+        - id: ai-service
+          uri: lb://aisymptom-service
+          predicates:
+            - Path=/api/ai/**
+        - id: doctor-service
+          uri: lb://doctor-service
+          predicates:
+            - Path=/api/doctor/**
+        - id: appointment-service
+          uri: lb://appointment-service
+          predicates:
+            - Path=/api/appointments/**
+        - id: patient-service
+          uri: lb://patient-service
+          predicates:
+            - Path=/api/patients/**
+        - id: telemedicine-service
+          uri: lb://telemedicine-service
+          predicates:
+            - Path=/api/video/**
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true

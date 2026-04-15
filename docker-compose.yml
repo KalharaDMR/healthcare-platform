@@ -1,0 +1,192 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    image: postgres:17
+    container_name: postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 20021021@Rusira
+      POSTGRES_DB: postgres
+    volumes:
+      - ./docker-data/postgres:/var/lib/postgresql/data
+    networks:
+      - healthcare-net
+
+  # Eureka Server
+  eureka-server:
+    build: ./eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - EUREKA_INSTANCE_HOSTNAME=eureka-server
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+    networks:
+      - healthcare-net
+
+  # Authentication Service
+  auth-service:
+    build: ./authentication-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
+      - JWT_SECRET=mySecretKeyForJWTGenerationWithAtLeast32CharactersLong
+      - JWT_EXPIRATION=3600000
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - eureka-server
+    networks:
+      - healthcare-net
+
+  # Admin Service
+  admin-service:
+    build: ./admin-service
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/admin_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
+      - INTERNAL_API_KEY=your-secret-internal-key
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - eureka-server
+    networks:
+      - healthcare-net
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8089:8089"
+    environment:
+      - JWT_SECRET=mySecretKeyForJWTGenerationWithAtLeast32CharactersLong
+      - JWT_EXPIRATION=3600000
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - auth-service
+      - admin-service
+      - eureka-server
+    networks:
+      - healthcare-net
+
+  # AI Symptom Service
+  aisymptom-service:
+    image: 2002rusira/aisymptomservice:v2
+    ports:
+      - "8098:8098"
+    environment:
+      - PORT=8098
+      - INTERNAL_API_KEY=your-secret-internal-key
+      - GEMINI_KEY=AIzaSyDoEwx8LaiED2SVuhQPNo9gOVXrZGY9NJM
+      - EUREKA_SERVER=http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+      - api-gateway
+    networks:
+      - healthcare-net
+
+  # Doctor Service
+  doctor-service:
+    build: ./doctor-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/doctor_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
+      - INTERNAL_API_KEY=your-secret-internal-key
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - eureka-server
+    networks:
+      - healthcare-net
+
+  # Appointment Service
+  appointment-service:
+    build: ./appointment-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/appointment_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
+      - INTERNAL_API_KEY=your-secret-internal-key
+      - JWT_SECRET=mySecretKeyForJWTGenerationWithAtLeast32CharactersLong
+      - JWT_EXPIRATION=3600000
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - eureka-server
+      - doctor-service
+      - auth-service
+    networks:
+      - healthcare-net
+
+  payment-service:
+    image: 2002rusira/payment-servicenew:v4
+    ports:
+      - "8095:8095"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/payment_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
+      - INTERNAL_API_KEY=your-secret-internal-key
+      - STRIPE_SECRET_KEY=
+      - STRIPE_WEBHOOK_SECRET_KEY=
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+      - api-gateway
+      - postgres
+    networks:
+      - healthcare-net
+
+  patient-service:
+    build: ./patient-service   # ✅ use build (your version is better for dev)
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/patient_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=Ramesh123
+      - INTERNAL_API_KEY=your-secret-internal-key
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - eureka-server
+    networks:
+      - healthcare-net
+
+  telemedicine-service:
+    build: ./telemedicine-service
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/telemedicine_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=Ramesh123
+      - AGORA_APP_ID=561899df7fda4457834c5ee78b138ceb
+      - AGORA_APP_CERTIFICATE=83a881e9cf58444e944e3428d327806b
+      - INTERNAL_API_KEY=your-secret-internal-key
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - eureka-server
+    networks:
+      - healthcare-net
+
+networks:
+  healthcare-net:
+    driver: bridge

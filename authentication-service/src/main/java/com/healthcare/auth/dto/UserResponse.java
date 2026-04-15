@@ -7,11 +7,13 @@ import java.util.Set;
 public class UserResponse {
     private Long id;
     private String username;
+    private String fullName;
     private String email;
     private String status;
     private boolean approved;
     private LocalDateTime createdAt;
     private Set<Role> roles;
+    private String phoneNumber;
 
     public UserResponse() {}
 
@@ -29,6 +31,14 @@ public class UserResponse {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {
@@ -69,5 +79,13 @@ public class UserResponse {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

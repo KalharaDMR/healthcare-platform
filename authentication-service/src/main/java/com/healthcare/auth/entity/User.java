@@ -16,11 +16,17 @@ public class User {
     @Column(unique = true, nullable = false)
     private String username;
 
+    @Column(nullable = true)
+    private String fullName;
+
     @Column(unique = true, nullable = false)
     private String email;
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = true)
+    private String phoneNumber;
 
     @Column(nullable = false)
     private String status = "ACTIVE";
@@ -56,6 +62,14 @@ public class User {
         this.username = username;
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -70,6 +84,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getStatus() {

@@ -2,9 +2,11 @@ package com.healthcare.auth.dto;
 
 public class RegisterRequest {
     private String username;
+    private String fullName;
     private String email;
     private String password;
     private String role;
+    private String phoneNumber;
 
     public RegisterRequest() {}
 
@@ -14,6 +16,14 @@ public class RegisterRequest {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {
@@ -38,5 +48,13 @@ public class RegisterRequest {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

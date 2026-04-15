@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import io.jsonwebtoken.Claims;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthFilter implements GlobalFilter, Ordered {
@@ -24,22 +27,21 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath();
 
         // Skip auth endpoints (no token required)
-        if (path.startsWith("/api/auth/")) {
+        if (path.startsWith("/api/auth/")
+                || path.startsWith("/api/doctor/search")
+                || path.startsWith("/api/doctor/availability/public/")) {
             return chain.filter(exchange);
         }
-
         // Extract token from Authorization header
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            System.out.println("----------------------------UNAUTHORIZEDDDD---------------------------------------------------------------------------------------------");
             return exchange.getResponse().setComplete();
         }
 
         String token = authHeader.substring(7);
         if (!jwtUtil.validateToken(token)) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            System.out.println("-------------------------------------------Rusiraaaaaaaaa--------------------------------------------------------------------------------");
             return exchange.getResponse().setComplete();
         }
 
@@ -57,10 +59,14 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     }
 
     private String extractRoles(String token) {
-        // For now, return empty; you can implement to extract roles from token claims
-        // In your auth service, you should add roles to the token claims during generation.
-        // We'll add a simple method to extract roles from the JWT body (if present).
-        // For simplicity, we'll not extract roles here.
+        Claims claims = jwtUtil.extractAllClaims(token);
+        Object rolesObj = claims.get("roles");
+        if (rolesObj instanceof List) {
+            List<?> rolesList = (List<?>) rolesObj;
+            return rolesList.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(","));
+        }
         return "";
     }
 

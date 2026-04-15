@@ -1,0 +1,39 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: telemedicine-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/telemedicine_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+agora:
+  appId: ${AGORA_APP_ID:561899df7fda4457834c5ee78b138ceb}
+  appCertificate: ${AGORA_APP_CERTIFICATE:83a881e9cf58444e944e3428d327806b}
+  expiration: 3600   # token validity in seconds
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+internal:
+  api:
+    key: ${INTERNAL_API_KEY:your-secret-internal-key}
+
+logging:
+  level:
+    com.healthcare.telemedicine: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForJWTGenerationWithAtLeast32CharactersLong}
