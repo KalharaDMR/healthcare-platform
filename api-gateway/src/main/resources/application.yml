@@ -1,0 +1,78 @@
+server:
+  port: 8089
+
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForJWTGenerationWithAtLeast32CharactersLong}
+  expiration: ${JWT_EXPIRATION:3600000}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: authentication-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+        - id: admin-service
+          uri: lb://admin-service
+          predicates:
+            - Path=/api/admin/**
+        - id: ai-service
+          uri: lb://aisymptom-service
+          predicates:
+            - Path=/api/ai/**
+        - id: doctor-service
+          uri: lb://doctor-service
+          predicates:
+            - Path=/api/doctor/**
+          filters:
+            - RewritePath=/api/doctor/(?<segment>.*), /doctor/${segment}
+        - id: appointment-service
+          uri: lb://appointment-service
+          predicates:
+            - Path=/api/appointments/**
+          filters:
+            - RewritePath=/api/appointments/(?<segment>.*), /appointments/${segment}
+        - id: patient-service
+          uri: lb://patient-service
+          predicates:
+            - Path=/api/patients/**
+        - id: patient-reports-service
+          uri: lb://patient-service
+          predicates:
+            - Path=/api/medical-reports/**
+        - id: patient-prescriptions-service
+          uri: lb://patient-service
+          predicates:
+            - Path=/api/prescriptions/**
+        - id: telemedicine-service
+          uri: lb://telemedicine-service
+          predicates:
+            - Path=/api/video/**
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true

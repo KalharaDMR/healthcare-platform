@@ -1,0 +1,15 @@
+node_modules/
+build/
+.env
+
+# Java
+target/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
