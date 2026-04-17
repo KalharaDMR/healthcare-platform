@@ -13,6 +13,7 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - ./docker-data/postgres:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
     networks:
       - healthcare-net
 
@@ -37,7 +38,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth_db
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
       - JWT_SECRET=mySecretKeyForJWTGenerationWithAtLeast32CharactersLong
       - JWT_EXPIRATION=3600000
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -55,8 +56,8 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/admin_db
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
-      - INTERNAL_API_KEY=your-secret-internal-key
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       - postgres
@@ -70,7 +71,7 @@ services:
     ports:
       - "8089:8089"
     environment:
-      - JWT_SECRET=mySecretKeyForJWTGenerationWithAtLeast32CharactersLong
+      - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=3600000
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
@@ -88,7 +89,7 @@ services:
     environment:
       - PORT=8098
       - INTERNAL_API_KEY=your-secret-internal-key
-      - GEMINI_KEY=AIzaSyDoEwx8LaiED2SVuhQPNo9gOVXrZGY9NJM
+      - GEMINI_KEY=${GEMINI_KEY}
       - EUREKA_SERVER=http://eureka-server:8761/eureka/
     depends_on:
       - eureka-server
@@ -135,7 +136,7 @@ services:
       - healthcare-net
 
   payment-service:
-    image: 2002rusira/payment-servicenew:v4
+    build: ./paymentService
     ports:
       - "8095:8095"
     environment:
@@ -143,8 +144,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
       - INTERNAL_API_KEY=your-secret-internal-key
-      - STRIPE_SECRET_KEY=
-      - STRIPE_WEBHOOK_SECRET_KEY=
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET_KEY=${STRIPE_WEBHOOK_SECRET_KEY}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       - eureka-server
@@ -160,7 +161,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/patient_db
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=Ramesh123
+      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
       - INTERNAL_API_KEY=your-secret-internal-key
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
@@ -176,9 +177,9 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/telemedicine_db
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=Ramesh123
-      - AGORA_APP_ID=561899df7fda4457834c5ee78b138ceb
-      - AGORA_APP_CERTIFICATE=83a881e9cf58444e944e3428d327806b
+      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
+      - AGORA_APP_ID=${AGORA_APP_ID}
+      - AGORA_APP_CERTIFICATE=${AGORA_APP_CERTIFICATE}
       - INTERNAL_API_KEY=your-secret-internal-key
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
@@ -186,6 +187,14 @@ services:
       - eureka-server
     networks:
       - healthcare-net
+
+
+#  healthcare-frontend:
+#    image: 2002rusira/healthcare_frontend:v4
+#    ports:
+#      - "80:80"
+#    networks:
+#      - healthcare-net
 
 networks:
   healthcare-net:
