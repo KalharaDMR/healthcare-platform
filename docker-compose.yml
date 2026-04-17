@@ -155,7 +155,7 @@ services:
       - healthcare-net
 
   patient-service:
-    build: ./patient-service   # ✅ use build (your version is better for dev)
+    build: ./patient-service   #  use build (your version is better for dev)
     ports:
       - "8082:8082"
     environment:
@@ -177,7 +177,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/telemedicine_db
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
       - AGORA_APP_ID=${AGORA_APP_ID}
       - AGORA_APP_CERTIFICATE=${AGORA_APP_CERTIFICATE}
       - INTERNAL_API_KEY=your-secret-internal-key
@@ -195,6 +195,13 @@ services:
 #      - "80:80"
 #    networks:
 #      - healthcare-net
+
+  healthcare-frontend:
+    build: ./healthcare-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - healthcare-net
 
 networks:
   healthcare-net:

@@ -1,31 +1,35 @@
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, UserCheck, Stethoscope, Settings,
-  LogOut, ChevronLeft, Menu, Heart, Bell, ChevronDown
+  LayoutDashboard, Users, Stethoscope, Settings,
+  LogOut, ChevronLeft, Menu, Heart, Calendar, Sparkles, User, CalendarClock, FileText, ClipboardList,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-function NavItem({ to, icon, label, collapsed }) {
+function NavItem({ to, icon, label, collapsed, activePathPrefix }) {
+  const location = useLocation();
   return (
     <NavLink
       to={to}
-      style={({ isActive }) => ({
+      style={({ isActive }) => {
+        const prefixOn = activePathPrefix && location.pathname.startsWith(activePathPrefix);
+        const on = isActive || prefixOn;
+        return {
         display: 'flex',
         alignItems: 'center',
         gap: 12,
         padding: collapsed ? '11px 16px' : '11px 16px',
         borderRadius: 'var(--radius-sm)',
-        color: isActive ? '#fff' : 'var(--text-on-dark-muted)',
-        background: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
-        fontWeight: isActive ? 600 : 400,
+        color: on ? '#fff' : 'var(--text-on-dark-muted)',
+        background: on ? 'rgba(255,255,255,0.12)' : 'transparent',
+        fontWeight: on ? 600 : 400,
         fontSize: '0.9375rem',
         textDecoration: 'none',
         transition: 'all 0.15s',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         justifyContent: collapsed ? 'center' : 'flex-start',
-      })}
+      };}}
       onMouseEnter={e => {
         if (!e.currentTarget.style.background.includes('0.12')) {
           e.currentTarget.style.background = 'rgba(255,255,255,0.07)';
@@ -57,11 +61,20 @@ export default function Sidebar({ collapsed, onToggle }) {
   ];
 
   const doctorLinks = [
-    { to: '/doctor/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+    { to: '/doctor/dashboard', icon: <LayoutDashboard size={18} />, label: 'Overview' },
+    { to: '/doctor/profile', icon: <User size={18} />, label: 'Profile' },
+    { to: '/doctor/availability', icon: <CalendarClock size={18} />, label: 'Availability' },
+    { to: '/doctor/appointments', icon: <Calendar size={18} />, label: 'Appointments' },
+    { to: '/doctor/clinical', icon: <ClipboardList size={18} />, label: 'Clinical' },
   ];
 
   const patientLinks = [
-    { to: '/patient/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+    { to: '/patient/dashboard', icon: <LayoutDashboard size={18} />, label: 'Overview' },
+    { to: '/patient/profile', icon: <User size={18} />, label: 'Manage profile' },
+    { to: '/patient/doctors', icon: <Stethoscope size={18} />, label: 'Find doctors', activePathPrefix: '/patient/doctors' },
+    { to: '/patient/appointments', icon: <Calendar size={18} />, label: 'Appointments' },
+    { to: '/patient/records', icon: <FileText size={18} />, label: 'Medical records' },
+    { to: '/patient/ai', icon: <Sparkles size={18} />, label: 'AI assistant' },
   ];
 
   const links = isAdmin ? adminLinks : isDoctor ? doctorLinks : patientLinks;

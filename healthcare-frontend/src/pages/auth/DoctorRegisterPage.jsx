@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, Phone, FileText, Stethoscope, Eye, EyeOff, Heart } from 'lucide-react';
+import { User, Mail, Lock, Phone, FileText, Stethoscope, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authApi } from '../../api/authApi';
 import { adminApi } from '../../api/adminApi';
@@ -10,8 +10,14 @@ import Button from '../../components/common/Button';
 export default function DoctorRegisterPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    username: '', email: '', password: '', confirmPassword: '',
-    phoneNumber: '', specialization: '', licenseNumber: '',
+    username: '',
+    doctorName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phoneNumber: '',
+    specialization: '',
+    licenseNumber: '',
   });
   const [specializations, setSpecializations] = useState([]);
   const [showPass, setShowPass] = useState(false);
@@ -32,6 +38,7 @@ export default function DoctorRegisterPage() {
   const validate = () => {
     const e = {};
     if (!form.username.trim()) e.username = 'Required';
+    if (!form.doctorName.trim()) e.doctorName = 'Enter your name as it should appear to patients';
     if (!form.email.includes('@')) e.email = 'Valid email required';
     if (form.password.length < 6) e.password = 'Min 6 characters';
     if (form.password !== form.confirmPassword) e.confirmPassword = 'Passwords do not match';
@@ -46,12 +53,13 @@ export default function DoctorRegisterPage() {
     setLoading(true);
     try {
       await authApi.registerDoctor({
-        username: form.username,
-        email: form.email,
+        username: form.username.trim(),
+        doctorName: form.doctorName.trim(),
+        email: form.email.trim(),
         password: form.password,
-        phoneNumber: form.phoneNumber,
+        phoneNumber: form.phoneNumber.trim(),
         specialization: form.specialization,
-        licenseNumber: form.licenseNumber,
+        licenseNumber: form.licenseNumber.trim(),
       });
       toast.success('Registration submitted! Awaiting admin approval.');
       navigate('/login');
@@ -107,6 +115,14 @@ export default function DoctorRegisterPage() {
               <Input label="Username" placeholder="dr.username" value={form.username} onChange={set('username')} error={errors.username} icon={<User size={15} />} />
               <Input label="Phone" type="tel" placeholder="+1 234 567" value={form.phoneNumber} onChange={set('phoneNumber')} icon={<Phone size={15} />} />
             </div>
+            <Input
+              label="Doctor name"
+              placeholder="e.g. Dr. Jane Perera"
+              value={form.doctorName}
+              onChange={set('doctorName')}
+              error={errors.doctorName}
+              icon={<Stethoscope size={15} />}
+            />
             <Input label="Email" type="email" placeholder="doctor@clinic.com" value={form.email} onChange={set('email')} error={errors.email} icon={<Mail size={15} />} />
 
             {/* Specialization */}

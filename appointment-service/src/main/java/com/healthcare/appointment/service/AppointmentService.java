@@ -186,6 +186,7 @@ public class AppointmentService {
         response.setDoctorUsername(appointment.getDoctorUsername());
         response.setHospital(appointment.getHospital());
         response.setAppointmentDate(appointment.getAppointmentDate());
+        response.setIsVideoConferencingAppointment(appointment.getIsVideoConferencingAppointment());
         response.setStartTime(appointment.getStartTime());
         response.setEndTime(appointment.getEndTime());
         response.setStatus(appointment.getStatus());

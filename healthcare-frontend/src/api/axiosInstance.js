@@ -1,22 +1,18 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8089';
+//const BASE_URL = 'http://localhost:8089';
+const BASE_URL = 'http://healthcare.local';
 
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Attach JWT + role header to every request
+// Attach JWT to every request (identity headers are added by API Gateway)
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-  }
-  // roles stored as plain strings ["ADMIN", "DOCTOR", ...]
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  if (user?.roles?.length) {
-    config.headers['X-User-Role'] = user.roles.join(',');
   }
   return config;
 });

@@ -6,6 +6,8 @@ import com.healthcare.auth.dto.DoctorMetaSyncRequest;
 import com.healthcare.auth.dto.DoctorProfileResponse;
 import com.healthcare.auth.dto.DoctorProfileUpdateRequest;
 import com.healthcare.auth.dto.DoctorRegisterRequest;
+import com.healthcare.auth.dto.PatientProfileResponse;
+import com.healthcare.auth.dto.PatientProfileUpdateRequest;
 import com.healthcare.auth.dto.RegisterRequest;
 import com.healthcare.auth.dto.RoleChangeRequest;
 import com.healthcare.auth.dto.UpdateUserRequest;
@@ -208,6 +210,47 @@ public class AuthService {
         return mapToDoctorProfileResponse(user, doctor);
     }
 
+    @Transactional(readOnly = true)
+    public PatientProfileResponse getPatientProfileByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+
+        validatePatientUser(user);
+        return mapToPatientProfileResponse(user);
+    }
+
+    @Transactional
+    public PatientProfileResponse updatePatientProfileByUsername(String username, PatientProfileUpdateRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+
+        validatePatientUser(user);
+
+        if (request.getEmail() != null
+                && !request.getEmail().isBlank()
+                && !request.getEmail().equals(user.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new RuntimeException("Email already in use");
+            }
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getFullName() != null && !request.getFullName().isBlank()) {
+            user.setFullName(request.getFullName());
+        }
+
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank()) {
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        user = userRepository.save(user);
+        return mapToPatientProfileResponse(user);
+    }
+
     @Transactional
     public void deleteUser(Long id) {
         doctorRepository.findByUserId(id).ifPresent(doctorRepository::delete);
@@ -298,6 +341,15 @@ public class AuthService {
         }
     }
 
+    private void validatePatientUser(User user) {
+        boolean isPatient = user.getRoles().stream()
+                .anyMatch(role -> "PATIENT".equalsIgnoreCase(role.getName()));
+
+        if (!isPatient) {
+            throw new RuntimeException("User is not a patient");
+        }
+    }
+
     private DoctorProfileResponse mapToDoctorProfileResponse(User user, Doctor doctor) {
         DoctorProfileResponse response = new DoctorProfileResponse();
         response.setDoctorId(doctor.getId());
@@ -312,6 +364,19 @@ public class AuthService {
         response.setSpecialization(doctor.getSpecialization());
         response.setLicenseNumber(doctor.getLicenseNumber());
         response.setLocation(doctor.getLocation());
+        return response;
+    }
+
+    private PatientProfileResponse mapToPatientProfileResponse(User user) {
+        PatientProfileResponse response = new PatientProfileResponse();
+        response.setUserId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setFullName(user.getFullName());
+        response.setEmail(user.getEmail());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setStatus(user.getStatus());
+        response.setApproved(user.isApproved());
+        response.setCreatedAt(user.getCreatedAt());
         return response;
     }
 

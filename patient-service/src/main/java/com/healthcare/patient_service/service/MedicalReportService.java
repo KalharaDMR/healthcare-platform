@@ -44,6 +44,11 @@ public class MedicalReportService {
         return repository.findByUserId(userId);
     }
 
+    public MedicalReport getById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Medical report not found"));
+    }
+
     public MedicalReportResponse toResponse(MedicalReport report) {
         MedicalReportResponse dto = new MedicalReportResponse();
         dto.setId(report.getId());

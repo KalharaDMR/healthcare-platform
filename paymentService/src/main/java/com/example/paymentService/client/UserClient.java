@@ -15,7 +15,7 @@ public interface UserClient {
     @GetMapping("/internal/getDoctor")
     public ResponseEntity<?> getDoctorProfile(@RequestParam("doctorUserName") String doctorUserName);
 
-    @GetMapping("/internal/users/{username}")
+    @GetMapping("/internal/users/by-username/{username}")
     public UserResponse getUserByUserName(@PathVariable String username);
 
 }

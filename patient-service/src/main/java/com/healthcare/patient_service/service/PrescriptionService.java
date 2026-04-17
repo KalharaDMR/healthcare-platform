@@ -46,9 +46,7 @@ public class PrescriptionService {
 
         validateUser(userId);
 
-        return repository.findAll().stream()
-                .filter(p -> userId.equals(p.getUserId()))
-                .collect(Collectors.toList());
+        return repository.findByUserId(userId);
     }
 
     private void validateUser(Long userId) {
