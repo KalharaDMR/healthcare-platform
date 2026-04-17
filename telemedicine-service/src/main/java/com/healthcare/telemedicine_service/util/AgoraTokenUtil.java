@@ -3,6 +3,7 @@ package com.healthcare.telemedicine_service.util;
 import io.agora.media.RtcTokenBuilder2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import java.time.Instant;
 
 @Component
 public class AgoraTokenUtil {
@@ -28,6 +29,11 @@ public class AgoraTokenUtil {
             tokenRole = RtcTokenBuilder2.Role.ROLE_SUBSCRIBER;
         }
 
+        // Agora expects absolute privilege-expiration timestamps (epoch seconds),
+        // not a duration value like 3600.
+        int currentTs = (int) Instant.now().getEpochSecond();
+        int privilegeExpireTs = currentTs + expirationInSeconds;
+
         // Build and return the token
         String token = tokenBuilder.buildTokenWithUid(
                 appId,
@@ -35,8 +41,8 @@ public class AgoraTokenUtil {
                 channelName,
                 uid,
                 tokenRole,
-                expirationInSeconds,
-                expirationInSeconds
+                privilegeExpireTs,
+                privilegeExpireTs
         );
         return token;
     }

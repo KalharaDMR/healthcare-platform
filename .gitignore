@@ -17,4 +17,10 @@ logs/
 application-dev.properties
 application-prod.properties
 
-docker-data/
+.env
+
+docker-data
+
+replacements.txt
+.env
+*.env

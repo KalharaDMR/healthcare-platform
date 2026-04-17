@@ -4,6 +4,8 @@ import com.healthcare.auth.dto.DoctorProfileResponse;
 import com.healthcare.auth.dto.DoctorProfileUpdateRequest;
 import com.healthcare.auth.dto.DoctorRegisterRequest;
 import com.healthcare.auth.dto.LoginRequest;
+import com.healthcare.auth.dto.PatientProfileResponse;
+import com.healthcare.auth.dto.PatientProfileUpdateRequest;
 import com.healthcare.auth.dto.RegisterRequest;
 import com.healthcare.auth.entity.User;
 import com.healthcare.auth.service.AuthService;
@@ -127,6 +129,35 @@ public class AuthController {
 
         String username = extractUsernameFromAuthorizationHeader(authorizationHeader);
         DoctorProfileResponse response = authService.updateDoctorProfileByUsername(username, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/profile/patient")
+    public ResponseEntity<PatientProfileResponse> getPatientProfile(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+
+        String username = extractUsernameFromAuthorizationHeader(authorizationHeader);
+        PatientProfileResponse response = authService.getPatientProfileByUsername(username);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/profile/patient")
+    public ResponseEntity<PatientProfileResponse> updatePatientProfile(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+            @RequestBody PatientProfileUpdateRequest request) {
+
+        String username = extractUsernameFromAuthorizationHeader(authorizationHeader);
+        PatientProfileResponse response = authService.updatePatientProfileByUsername(username, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/profile/patient")
+    public ResponseEntity<PatientProfileResponse> patchPatientProfile(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+            @RequestBody PatientProfileUpdateRequest request) {
+
+        String username = extractUsernameFromAuthorizationHeader(authorizationHeader);
+        PatientProfileResponse response = authService.updatePatientProfileByUsername(username, request);
         return ResponseEntity.ok(response);
     }
 

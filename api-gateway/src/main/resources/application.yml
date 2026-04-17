@@ -35,14 +35,26 @@ spring:
           uri: lb://doctor-service
           predicates:
             - Path=/api/doctor/**
+          filters:
+            - RewritePath=/api/doctor/(?<segment>.*), /doctor/${segment}
         - id: appointment-service
           uri: lb://appointment-service
           predicates:
             - Path=/api/appointments/**
+          filters:
+            - RewritePath=/api/appointments/(?<segment>.*), /appointments/${segment}
         - id: patient-service
           uri: lb://patient-service
           predicates:
             - Path=/api/patients/**
+        - id: patient-reports-service
+          uri: lb://patient-service
+          predicates:
+            - Path=/api/medical-reports/**
+        - id: patient-prescriptions-service
+          uri: lb://patient-service
+          predicates:
+            - Path=/api/prescriptions/**
         - id: telemedicine-service
           uri: lb://telemedicine-service
           predicates:

@@ -14,4 +14,7 @@ public interface AuthClient {
 
     @GetMapping("/internal/users")
     List<Object> getAllUsers(@RequestHeader("X-INTERNAL-KEY") String apiKey);
+
+    @GetMapping("/internal/users/by-username/{username}")
+    AuthUserResponse getUserByUsername(@PathVariable("username") String username);
 }

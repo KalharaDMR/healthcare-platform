@@ -177,7 +177,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/telemedicine_db
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
       - AGORA_APP_ID=${AGORA_APP_ID}
       - AGORA_APP_CERTIFICATE=${AGORA_APP_CERTIFICATE}
       - INTERNAL_API_KEY=your-secret-internal-key

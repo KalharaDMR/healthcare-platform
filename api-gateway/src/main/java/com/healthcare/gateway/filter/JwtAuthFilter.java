@@ -29,7 +29,8 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         // Skip auth endpoints (no token required)
         if (path.startsWith("/api/auth/")
                 || path.startsWith("/api/doctor/search")
-                || path.startsWith("/api/doctor/availability/public/")) {
+                || path.startsWith("/api/doctor/availability/public/")
+        || path.startsWith("/api/payments/webhook")) {
             return chain.filter(exchange);
         }
         // Extract token from Authorization header
