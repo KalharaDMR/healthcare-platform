@@ -155,7 +155,7 @@ services:
       - healthcare-net
 
   patient-service:
-    build: ./patient-service   # ✅ use build (your version is better for dev)
+    build: ./patient-service   #  use build (your version is better for dev)
     ports:
       - "8082:8082"
     environment:
@@ -195,6 +195,13 @@ services:
 #      - "80:80"
 #    networks:
 #      - healthcare-net
+
+  healthcare-frontend:
+    build: ./healthcare-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - healthcare-net
 
 networks:
   healthcare-net:

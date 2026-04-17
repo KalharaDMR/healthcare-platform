@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8089';
+//const BASE_URL = 'http://localhost:8089';
+const BASE_URL = 'http://healthcare.local';
 
 const api = axios.create({
   baseURL: BASE_URL,
