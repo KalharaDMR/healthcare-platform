@@ -22,48 +22,16 @@ The platform is built using **Spring Boot Microservices, React Frontend, Postgre
 
 ---
 
-## 🏗️ System Architecture
+##  Architecture Overview
 
-```text
-                        ┌─────────────────────┐
-                        │   React Frontend    │
-                        │  (Dockerized UI)    │
-                        └──────────┬──────────┘
-                                   │
-                                   ▼
-                        ┌─────────────────────┐
-                        │   API Gateway       │
-                        │ Spring Cloud Gateway│
-                        └──────────┬──────────┘
-                                   │
-        ┌──────────────────────────┼──────────────────────────┐
-        ▼                          ▼                          ▼
-┌──────────────┐          ┌──────────────┐           ┌──────────────┐
-│ Auth Service │          │ Patient Svc  │           │ Doctor Svc   │
-└──────────────┘          └──────────────┘           └──────────────┘
+The system is designed with independent, scalable microservices communicating over standard RESTful HTTP protocols.
 
-        ▼                          ▼                          ▼
-
-┌──────────────┐          ┌──────────────┐           ┌──────────────┐
-│ Appointment  │          │ Payment Svc  │           │ Telemedicine │
-│ Service      │          │              │           │ Service      │
-└──────────────┘          └──────────────┘           └──────────────┘
-
-        ▼
-┌──────────────┐
-│ AI Symptom   │
-│ Service      │
-└──────────────┘
-
-                ┌──────────────────────┐
-                │ Eureka Server        │
-                │ Service Discovery    │
-                └──────────────────────┘
-
-                ┌──────────────────────┐
-                │ PostgreSQL Databases │
-                └──────────────────────┘
-```
+ **Auth Service**: Manages user registration, authentication (JWT), and roles.  
+ **Doctor Service**: Handles doctor entities, experience tracking, and availability slots.  
+ **Appointment Service**: Acts as the central scheduling system mapping patients to doctors.  
+ **Patient Service**: Manages patient profiles and medical records.  
+ **AI Symptom Checker Service**: Provides suggestions using AI to find a good doctor. 
+ **API Gateway**: Serves as the central entry point for all service requests. 
 
 ---
 
@@ -128,7 +96,7 @@ medicare-healthcare-platform/
 
 ---
 
-## 🚀 Local Deployment Guide
+##  Local Deployment Guide
 
 ### 1️⃣ Prerequisites
 
