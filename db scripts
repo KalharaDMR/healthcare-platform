@@ -1,0 +1,109 @@
+# Connected as postgres user
+
+## Databases
+postgres=# \l
+
+Name              | Owner    | Encoding | Collation   | Ctype       | Tables
+------------------|----------|----------|-------------|-------------|--------
+admin_db          | postgres | UTF8     | en_US.utf8  | en_US.utf8  | 1
+appointment_db    | postgres | UTF8     | en_US.utf8  | en_US.utf8  | 1
+auth_db           | postgres | UTF8     | en_US.utf8  | en_US.utf8  | 4
+doctor_db         | postgres | UTF8     | en_US.utf8  | en_US.utf8  | 2
+patient_db        | postgres | UTF8     | en_US.utf8  | en_US.utf8  | 2
+payment_db        | postgres | UTF8     | en_US.utf8  | en_US.utf8  | 1
+telemedicine_db   | postgres | UTF8     | en_US.utf8  | en_US.utf8  | 1
+
+
+========================================================
+## AUTH_DB
+========================================================
+
+Tables:
+- users
+- roles
+- user_roles
+- doctors
+
+(No sample data shown)
+
+
+========================================================
+## ADMIN_DB
+========================================================
+
+Table: specializations
+
+id | name
+---|-------------
+1  | Cardiology
+2  | Dermatology
+3  | Pediatrics
+4  | Neurology
+5  | Orthopedics
+
+
+========================================================
+## APPOINTMENT_DB
+========================================================
+
+Table: appointments
+
+id | appointment_date | doctor_username | patient_username | start_time | end_time | hospital | status | slot_id | video | created_at
+---|------------------|----------------|------------------|------------|----------|----------|--------|--------|-------|----------------------------
+1  | 2026-04-17       | Wathsala       | Ramesh           | 16:00:00   | 21:00:00 | medihelp | BOOKED | 1      | true  | 2026-04-17 11:57:46
+
+
+========================================================
+## DOCTOR_DB
+========================================================
+
+Tables:
+- availability_slots
+- doctor_meta
+
+Table: doctor_meta
+
+user_id | doctor_name            | username  | specialization | location | status
+--------|------------------------|-----------|----------------|----------|---------
+3       | Dr. Wathsala Gunasinghe | Wathsala | Cardiology     | Unknown  | VERIFIED
+
+
+Table: availability_slots
+
+id | doctor_username | date       | start_time | end_time | available | cost_normal | cost_video
+-- |----------------|------------|------------|----------|-----------|-------------|------------
+1  | Wathsala       | 2026-04-17 | 16:00:00   | 21:00:00 | false     | 1.59        | 1.59
+
+
+========================================================
+## PATIENT_DB
+========================================================
+
+Tables:
+- medical_report
+- prescription
+
+medical_report → (empty)
+prescription   → (empty)
+
+
+========================================================
+## PAYMENT_DB
+========================================================
+
+Table: transactions
+
+id | patient | amount | status  | slot_id | stripe_payment_intent_id
+---|---------|--------|---------|--------|---------------------------
+1  | Ramesh  | 1.59   | SUCCESS | 1      | pi_3TNB0nK2iZIFt9UX0lclVy3d
+
+
+========================================================
+## TELEMEDICINE_DB
+========================================================
+
+Table: video_sessions
+
+id | appointment_id | channel_name        | doctor_username | patient_username | status | doctor_token | patient_token
+---|----------------|---------------------|----------------|------------------|--------|--------------|----------------
+1  | 1              | appt_1_1776428089997 | Wathsala       | Ramesh           | ACTIVE | (token...)   | (token...)

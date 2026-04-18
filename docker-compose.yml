@@ -188,6 +188,27 @@ services:
     networks:
       - healthcare-net
 
+      #notification service 
+
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "8086:8086"
+    environment:
+      - PORT=8086
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/notification_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=20021021@Rusira
+      - SENDGRID_API_KEY=
+      - SENDGRID_FROM_EMAIL=
+      - SENDGRID_FROM_NAME=
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - INTERNAL_API_KEY=your-secret-internal-key
+    depends_on:
+      - postgres
+      - eureka-server
+    networks:
+      - healthcare-net
 
 #  healthcare-frontend:
 #    image: 2002rusira/healthcare_frontend:v4
